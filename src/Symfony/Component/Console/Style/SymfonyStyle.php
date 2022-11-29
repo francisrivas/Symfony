@@ -58,6 +58,11 @@ class SymfonyStyle extends OutputStyle
         parent::__construct($this->output = $output);
     }
 
+    public function getOutput(): OutputInterface
+    {
+        return $this->output;
+    }
+
     /**
      * Formats a message as a block of text.
      *
