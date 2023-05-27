@@ -12,6 +12,9 @@ CHANGELOG
  * Add `rate_limiter` tags to rate limiter services
  * Add `secrets:reveal` command
  * Add `rate_limiter` option to `http_client.default_options` and `http_client.scoped_clients`
+ * Wire the `Symfony\Component\PropertyInfo\Extractor\ConstructorExtractor` class
+ * Add new `framework.property_info.with_constructor_extractor` option to
+   allow enabling or disabling the constructor extractor integration
 
 7.0
 ---
