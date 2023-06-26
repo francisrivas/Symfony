@@ -200,10 +200,22 @@ class RegisterListenersPassTest extends TestCase
     public function testInvokableEventListener()
     {
         $container = new ContainerBuilder();
-        $container->register('foo', \stdClass::class)->addTag('kernel.event_listener', ['event' => 'foo.bar']);
+        $container->setParameter('event_dispatcher.event_aliases', [AliasedEvent::class => 'aliased_event']);
+
+        $container->register('foo', \get_class(new class() {
+            public function onFooBar()
+            {
+            }
+        }))->addTag('kernel.event_listener', ['event' => 'foo.bar']);
         $container->register('bar', InvokableListenerService::class)->addTag('kernel.event_listener', ['event' => 'foo.bar']);
         $container->register('baz', InvokableListenerService::class)->addTag('kernel.event_listener', ['event' => 'event']);
-        $container->register('zar', \stdClass::class)->addTag('kernel.event_listener', ['event' => 'foo.bar_zar']);
+        $container->register('zar', \get_class(new class() {
+            public function onFooBarZar()
+            {
+            }
+        }))->addTag('kernel.event_listener', ['event' => 'foo.bar_zar']);
+        $container->register('typed_listener', InvokableListenerService::class)->addTag('kernel.event_listener', ['event' => CustomEvent::class]);
+        $container->register('aliased_event', InvokableListenerService::class)->addTag('kernel.event_listener', ['event' => 'aliased_event']);
         $container->register('event_dispatcher', \stdClass::class);
 
         $registerListenersPass = new RegisterListenersPass();
@@ -243,8 +255,64 @@ class RegisterListenersPassTest extends TestCase
                     0,
                 ],
             ],
+            [
+                'addListener',
+                [
+                    CustomEvent::class,
+                    [new ServiceClosureArgument(new Reference('typed_listener')), 'onCustomEvent'],
+                    0,
+                ],
+            ],
+            [
+                'addListener',
+                [
+                    'aliased_event',
+                    [new ServiceClosureArgument(new Reference('aliased_event')), 'onAliasedEvent'],
+                    0,
+                ],
+            ],
         ];
         $this->assertEquals($expectedCalls, $definition->getMethodCalls());
+    }
+
+    public function testItThrowsAnExceptionIfTagIsMissingMethodAndClassHasMultipleMethodsWithEvent()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Service "foo" must define the "method" attribute on "kernel.event_listener" tags.');
+
+        $container = new ContainerBuilder();
+
+        $container->register('foo', \get_class(new class() {
+            public function doSomethingOnCustomEvent(CustomEvent $event)
+            {
+            }
+
+            public function doAnotherThingOnCustomEvent(CustomEvent $event)
+            {
+            }
+        }))->addTag('kernel.event_listener', ['event' => CustomEvent::class]);
+        $container->register('event_dispatcher', \stdClass::class);
+
+        $registerListenersPass = new RegisterListenersPass();
+        $registerListenersPass->process($container);
+    }
+
+    public function testItThrowsAnExceptionIfTagIsMissingMethodAndClassHasNoMethodWithEvent()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Service "foo" must define the "method" attribute on "kernel.event_listener" tags.');
+
+        $container = new ContainerBuilder();
+
+        $container->register('foo', \get_class(new class() {
+            public function doSomethingOnCustomEvent($event)
+            {
+            }
+        }))->addTag('kernel.event_listener', ['event' => CustomEvent::class]);
+        $container->register('event_dispatcher', \stdClass::class);
+
+        $registerListenersPass = new RegisterListenersPass();
+        $registerListenersPass->process($container);
     }
 
     public function testTaggedInvokableEventListener()
@@ -498,6 +566,14 @@ class InvokableListenerService
     }
 
     public function onEvent()
+    {
+    }
+
+    public function onCustomEvent(CustomEvent $event): void
+    {
+    }
+
+    public function onAliasedEvent(AliasedEvent $event): void
     {
     }
 }
