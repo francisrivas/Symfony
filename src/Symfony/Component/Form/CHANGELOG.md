@@ -8,6 +8,8 @@ CHANGELOG
    `model_timezone` option in `DateType`, `DateTimeType`, and `TimeType`
  * Deprecate `PostSetDataEvent::setData()`, use `PreSetDataEvent::setData()` instead
  * Deprecate `PostSubmitEvent::setData()`, use `PreSubmitDataEvent::setData()` or `SubmitDataEvent::setData()` instead
+ * Use `form.post_set_data` instead of `form.pre_set_data` in `ResizeFormListener`
+ * Change the priority of `DataCollectorListener` from 255 to -255
 
 6.3
 ---
