@@ -6,6 +6,7 @@ CHANGELOG
 
  * Add option `redis_sentinel` as an alias for `sentinel_master`
  * Add `--all` option to the `messenger:consume` command
+ * Add `$previous` to the exception output at the `messenger:failed:show` command
 
 7.0
 ---
