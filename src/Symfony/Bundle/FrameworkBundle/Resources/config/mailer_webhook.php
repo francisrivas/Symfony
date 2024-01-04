@@ -53,7 +53,7 @@ return static function (ContainerConfigurator $container) {
 
         ->set('mailer.payload_converter.mailchimp', MailchimpPayloadConverter::class)
         ->set('mailer.webhook.request_parser.mailchimp', MailchimpRequestParser::class)
-        ->args([service('mailer.payload_converter.mailchimp'), param('webhook.routing.service'), param('webhook.routing.secret')])
+            ->args([service('mailer.payload_converter.mailchimp')])
         ->alias(MailchimpRequestParser::class, 'mailer.webhook.request_parser.mailchimp')
     ;
 };
