@@ -32,14 +32,14 @@ final class ErrorDetailsStamp implements StampInterface
         $this->flattenException = $flattenException;
     }
 
-    public static function create(\Throwable $throwable): self
+    public static function create(\Throwable $throwable, bool $includeStackTrace = true): self
     {
         if ($throwable instanceof HandlerFailedException) {
             $throwable = $throwable->getPrevious();
         }
 
         $flattenException = null;
-        if (class_exists(FlattenException::class)) {
+        if ($includeStackTrace && class_exists(FlattenException::class)) {
             $flattenException = FlattenException::createFromThrowable($throwable);
         }
 

@@ -12,6 +12,7 @@ CHANGELOG
  * Add `rate_limiter` tags to rate limiter services
  * Add `secrets:reveal` command
  * Add `rate_limiter` option to `http_client.default_options` and `http_client.scoped_clients`
+ * Add `include_stack_trace_in_error` option that's used in `AddErrorDetailsStampListener`
 
 7.0
 ---
