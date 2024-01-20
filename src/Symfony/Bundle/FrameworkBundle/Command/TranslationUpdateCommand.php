@@ -87,7 +87,7 @@ class TranslationUpdateCommand extends Command
                 new InputOption('force', null, InputOption::VALUE_NONE, 'Should the extract be done'),
                 new InputOption('clean', null, InputOption::VALUE_NONE, 'Should clean not found messages'),
                 new InputOption('domain', null, InputOption::VALUE_OPTIONAL, 'Specify the domain to extract'),
-                new InputOption('sort', null, InputOption::VALUE_OPTIONAL, 'Return list of messages sorted alphabetically (only works with --dump-messages)', 'asc'),
+                new InputOption('sort', null, InputOption::VALUE_OPTIONAL, 'Return list of messages sorted alphabetically'),
                 new InputOption('as-tree', null, InputOption::VALUE_OPTIONAL, 'Dump the messages as a tree-like structure: The given value defines the level where to switch to inline YAML'),
             ])
             ->setHelp(<<<'EOF'
@@ -116,6 +116,7 @@ You can sort the output with the <comment>--sort</> flag:
 You can dump a tree-like structure using the yaml format with <comment>--as-tree</> flag:
 
     <info>php %command.full_name% --force --format=yaml --as-tree=3 en AcmeBundle</info>
+    <info>php %command.full_name% --force --format=yaml --sort=asc --as-tree=3 fr</info>
 
 EOF
             )
@@ -234,19 +235,22 @@ EOF
 
                 $domainMessagesCount = \count($list);
 
-                if ($sort = $input->getOption('sort')) {
-                    $sort = strtolower($sort);
-                    if (!\in_array($sort, self::SORT_ORDERS, true)) {
-                        $errorIo->error(['Wrong sort order', 'Supported formats are: '.implode(', ', self::SORT_ORDERS).'.']);
+                $sort = $input->getOption('sort');
+                if (null === $sort) {
+                    $sort = 'asc';
+                }
 
-                        return 1;
-                    }
+                $sort = strtolower($sort);
+                if (!\in_array($sort, self::SORT_ORDERS, true)) {
+                    $errorIo->error(['Wrong sort order', 'Supported formats are: '.implode(', ', self::SORT_ORDERS).'.']);
 
-                    if (self::DESC === $sort) {
-                        rsort($list);
-                    } else {
-                        sort($list);
-                    }
+                    return 1;
+                }
+
+                if (self::DESC === $sort) {
+                    rsort($list);
+                } else {
+                    sort($list);
                 }
 
                 $io->section(sprintf('Messages extracted for domain "<info>%s</info>" (%d message%s)', $domain, $domainMessagesCount, $domainMessagesCount > 1 ? 's' : ''));
@@ -277,7 +281,14 @@ EOF
                 $bundleTransPath = end($transPaths);
             }
 
-            $this->writer->write($operation->getResult(), $format, ['path' => $bundleTransPath, 'default_locale' => $this->defaultLocale, 'xliff_version' => $xliffVersion, 'as_tree' => $input->getOption('as-tree'), 'inline' => $input->getOption('as-tree') ?? 0]);
+            $this->writer->write($operation->getResult(), $format, [
+                'path' => $bundleTransPath,
+                'default_locale' => $this->defaultLocale,
+                'xliff_version' => $xliffVersion,
+                'as_tree' => $input->getOption('as-tree'),
+                'inline' => $input->getOption('as-tree') ?? 0,
+                'sort' => $input->getOption('sort'),
+            ]);
 
             if (true === $input->getOption('dump-messages')) {
                 $resultMessage .= ' and translation files were updated';
