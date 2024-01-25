@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+7.1
+---
+
+ * Do not render errors/exceptions when using `--quiet`/`SHELL_VERBOSITY=-1`
+
 7.0
 ---
 

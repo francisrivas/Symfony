@@ -6,6 +6,12 @@ Cache
 
  * Deprecate `CouchbaseBucketAdapter`, use `CouchbaseCollectionAdapter` instead
 
+Console
+-------
+
+ * Do not render errors/exceptions when using `--quiet`/`SHELL_VERBOSITY=-1`.
+   To view errors, either enable at least normal verbosity or use a logger.
+
 FrameworkBundle
 ---------------
 

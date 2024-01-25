@@ -817,13 +817,13 @@ class Application implements ResetInterface
 
     public function renderThrowable(\Throwable $e, OutputInterface $output): void
     {
-        $output->writeln('', OutputInterface::VERBOSITY_QUIET);
+        $output->writeln('');
 
         $this->doRenderThrowable($e, $output);
 
         if (null !== $this->runningCommand) {
-            $output->writeln(sprintf('<info>%s</info>', OutputFormatter::escape(sprintf($this->runningCommand->getSynopsis(), $this->getName()))), OutputInterface::VERBOSITY_QUIET);
-            $output->writeln('', OutputInterface::VERBOSITY_QUIET);
+            $output->writeln(sprintf('<info>%s</info>', OutputFormatter::escape(sprintf($this->runningCommand->getSynopsis(), $this->getName()))));
+            $output->writeln('');
         }
     }
 
@@ -869,10 +869,10 @@ class Application implements ResetInterface
             $messages[] = $emptyLine;
             $messages[] = '';
 
-            $output->writeln($messages, OutputInterface::VERBOSITY_QUIET);
+            $output->writeln($messages);
 
             if (OutputInterface::VERBOSITY_VERBOSE <= $output->getVerbosity()) {
-                $output->writeln('<comment>Exception trace:</comment>', OutputInterface::VERBOSITY_QUIET);
+                $output->writeln('<comment>Exception trace:</comment>');
 
                 // exception related properties
                 $trace = $e->getTrace();
@@ -891,10 +891,10 @@ class Application implements ResetInterface
                     $file = $trace[$i]['file'] ?? 'n/a';
                     $line = $trace[$i]['line'] ?? 'n/a';
 
-                    $output->writeln(sprintf(' %s%s at <info>%s:%s</info>', $class, $function ? $type.$function.'()' : '', $file, $line), OutputInterface::VERBOSITY_QUIET);
+                    $output->writeln(sprintf(' %s%s at <info>%s:%s</info>', $class, $function ? $type.$function.'()' : '', $file, $line));
                 }
 
-                $output->writeln('', OutputInterface::VERBOSITY_QUIET);
+                $output->writeln('');
             }
         } while ($e = $e->getPrevious());
     }
