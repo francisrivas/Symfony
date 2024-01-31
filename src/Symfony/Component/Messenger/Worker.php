@@ -11,6 +11,7 @@
 
 namespace Symfony\Component\Messenger;
 
+use Amp\Parallel\Worker\ContextWorkerPool;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Clock\Clock;
@@ -27,8 +28,10 @@ use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\Exception\RejectRedeliveredMessageException;
 use Symfony\Component\Messenger\Exception\RuntimeException;
 use Symfony\Component\Messenger\Stamp\AckStamp;
+use Symfony\Component\Messenger\Stamp\BusNameStamp;
 use Symfony\Component\Messenger\Stamp\ConsumedByWorkerStamp;
 use Symfony\Component\Messenger\Stamp\FlushBatchHandlersStamp;
+use Symfony\Component\Messenger\Stamp\FutureStamp;
 use Symfony\Component\Messenger\Stamp\NoAutoAckStamp;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 use Symfony\Component\Messenger\Stamp\TransportMessageIdStamp;
@@ -48,6 +51,8 @@ class Worker
     private WorkerMetadata $metadata;
     private array $acks = [];
     private \SplObjectStorage $unacks;
+
+    private static $futures = [];
 
     /**
      * @param ReceiverInterface[] $receivers Where the key is the transport name
@@ -103,11 +108,16 @@ class Worker
                     $envelopes = $receiver->get();
                 }
 
+                if (!$envelopes) {
+                    // flush
+                    $this->handleFutures($transportName);
+                }
+
                 foreach ($envelopes as $envelope) {
                     $envelopeHandled = true;
 
                     $this->rateLimit($transportName);
-                    $this->handleMessage($envelope, $transportName);
+                    $this->handleMessage($envelope, $transportName, $options['parallel-limit'] ?? 0);
                     $this->eventDispatcher?->dispatch(new WorkerRunningEvent($this, false));
 
                     if ($this->shouldStop) {
@@ -142,7 +152,7 @@ class Worker
         $this->eventDispatcher?->dispatch(new WorkerStoppedEvent($this));
     }
 
-    private function handleMessage(Envelope $envelope, string $transportName): void
+    private function handleMessage(Envelope $envelope, string $transportName, int $parallelProcessesLimit): void
     {
         $event = new WorkerMessageReceivedEvent($envelope, $transportName);
         $this->eventDispatcher?->dispatch($event);
@@ -153,17 +163,52 @@ class Worker
         }
 
         $acked = false;
-        $ack = function (Envelope $envelope, ?\Throwable $e = null) use ($transportName, &$acked) {
-            $acked = true;
-            $this->acks[] = [$transportName, $envelope, $e];
-        };
+        $busNameStamp = $envelope->last(BusNameStamp::class);
 
         try {
             $e = null;
-            $envelope = $this->bus->dispatch($envelope->with(new ReceivedStamp($transportName), new ConsumedByWorkerStamp(), new AckStamp($ack)));
+
+            $envelope = $envelope->with(new ReceivedStamp($transportName), new ConsumedByWorkerStamp());
+
+            // "non concurrent" behaviour
+            if (!$busNameStamp || 'parallel_bus' !== $busNameStamp->getBusName()) {
+                $ack = function (Envelope $envelope, ?\Throwable $e = null) use ($transportName, &$acked) {
+                    $acked = true;
+                    $this->acks[] = [$transportName, $envelope, $e];
+                };
+
+                $envelope = $envelope->with(new AckStamp($ack));
+            }
+
+            if ($busNameStamp && 'parallel_bus' === $busNameStamp->getBusName() && !class_exists(ContextWorkerPool::class)) {
+                throw new \LogicException(sprintf('Package "amp/parallel" is required to use the "%s". Try running "composer require amphp/parallel".', ParallelMessageBus::class));
+            }
+
+            $envelope = $this->bus->dispatch($envelope);
+
+            // "non concurrent" behaviour
+            if (null == $futureStamp = $envelope->last(FutureStamp::class)) {
+                $this->preAck($envelope, $transportName, $acked, $e);
+
+                return;
+            }
+
+            self::$futures[] = [$futureStamp->getFuture(), $envelope];
         } catch (\Throwable $e) {
+            $this->preAck($envelope, $transportName, $acked, $e);
+
+            return;
         }
 
+        if (\count(self::$futures) < $parallelProcessesLimit) {
+            return;
+        }
+
+        $this->handleFutures($transportName);
+    }
+
+    private function preAck(Envelope $envelope, string $transportName, bool $acked, $e): void
+    {
         $noAutoAckStamp = $envelope->last(NoAutoAckStamp::class);
 
         if (!$acked && !$noAutoAckStamp) {
@@ -281,5 +326,36 @@ class Worker
     public function getMetadata(): WorkerMetadata
     {
         return $this->metadata;
+    }
+
+    public function handleFutures(string $transportName): void
+    {
+        $toHandle = self::$futures;
+        self::$futures = [];
+        $errors = [];
+
+        foreach ($toHandle as $future) {
+            $e = null;
+            try {
+                $execution = $future[0]->await();
+                $envelope = $execution->await();
+            } catch (\Throwable $e) {
+                $errors[] = [$future[1]->withoutStampsOfType(FutureStamp::class), $e];
+
+                continue;
+            }
+
+            $this->preAck($envelope, $transportName, false, null);
+        }
+
+        if (!$errors) {
+            return;
+        }
+
+        foreach ($errors as $combo) {
+            [$envelope, $e] = $combo;
+
+            $this->preAck($envelope, $transportName, false, $e);
+        }
     }
 }
