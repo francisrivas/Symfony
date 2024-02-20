@@ -86,7 +86,6 @@ use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Webhook\Client\RequestParser;
 use Symfony\Component\Webhook\Controller\WebhookController;
-use Symfony\Component\Workflow;
 use Symfony\Component\Workflow\Exception\InvalidDefinitionException;
 use Symfony\Component\Workflow\Metadata\InMemoryMetadataStore;
 use Symfony\Component\Workflow\WorkflowEvents;
@@ -359,7 +358,7 @@ abstract class FrameworkExtensionTestCase extends TestCase
         $this->assertSame('state_machine.pull_request.metadata_store', (string) $metadataStoreReference);
 
         $metadataStoreDefinition = $container->getDefinition('state_machine.pull_request.metadata_store');
-        $this->assertSame(Workflow\Metadata\InMemoryMetadataStore::class, $metadataStoreDefinition->getClass());
+        $this->assertSame(InMemoryMetadataStore::class, $metadataStoreDefinition->getClass());
         $this->assertSame(InMemoryMetadataStore::class, $metadataStoreDefinition->getClass());
 
         $workflowMetadata = $metadataStoreDefinition->getArgument(0);
