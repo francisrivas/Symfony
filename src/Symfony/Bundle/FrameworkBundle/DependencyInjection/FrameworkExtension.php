@@ -11,6 +11,7 @@
 
 namespace Symfony\Bundle\FrameworkBundle\DependencyInjection;
 
+use Amp\Parallel\Worker\Task;
 use Composer\InstalledVersions;
 use Http\Client\HttpAsyncClient;
 use Http\Client\HttpClient;
@@ -2163,7 +2164,12 @@ class FrameworkExtension extends Extension
 
             if ($busId === $config['default_bus']) {
                 $container->setAlias('messenger.default_bus', $busId)->setPublic(true);
-                $container->setAlias(MessageBusInterface::class, $busId)->setPublic(true);
+
+                $messageBusAlias = $container->setAlias(MessageBusInterface::class, $busId);
+
+                if (class_exists(Task::class)) {
+                    $messageBusAlias->setPublic(true);
+                }
             } else {
                 $container->registerAliasForArgument($busId, MessageBusInterface::class);
             }

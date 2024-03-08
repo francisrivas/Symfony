@@ -18,7 +18,6 @@ use Amp\Sync\Channel;
 use App\Kernel;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Dotenv\Dotenv;
-use Symfony\Component\Messenger\Exception\LogicException;
 use Symfony\Component\Messenger\Stamp\AckStamp;
 
 class DispatchTask implements Task
@@ -27,6 +26,9 @@ class DispatchTask implements Task
 
     public function __construct(private Envelope $envelope, private array $stamps, private readonly string $env, private readonly bool $isDebug, private readonly string $projectDir)
     {
+        if (!class_exists(LocalCache::class)) {
+            throw new \LogicException(sprintf('Package "amp/cache" is required to use the "%s". Try running "composer require amphp/cache".', LocalCache::class));
+        }
     }
 
     public function run(Channel $channel, Cancellation $cancellation): mixed
@@ -39,10 +41,6 @@ class DispatchTask implements Task
 
     private function dispatch(ContainerInterface $container, $channel)
     {
-        if (!$container->has(MessageBusInterface::class)) {
-            throw new LogicException(sprintf("%s can't be found.", MessageBusInterface::class));
-        }
-
         $messageBus = $container->get(MessageBusInterface::class);
 
         return $messageBus->dispatch($this->envelope, $this->stamps);
@@ -63,10 +61,10 @@ class DispatchTask implements Task
 
             if (!class_exists(Kernel::class) && !isset($_ENV['KERNEL_CLASS'])) {
                 throw new \LogicException('You must set the KERNEL_CLASS environment variable to the fully-qualified class name of your Kernel in .env or have "%s" class.', Kernel::class);
-            } elseif (class_exists(Kernel::class)) {
-                $kernel = new Kernel($this->env, $this->isDebug);
-            } else {
+            } elseif (isset($_ENV['KERNEL_CLASS'])) {
                 $kernel = new $_ENV['KERNEL_CLASS']($this->env, $this->isDebug);
+            } else {
+                $kernel = new Kernel($this->env, $this->isDebug);
             }
 
             $kernel->boot();
@@ -76,5 +74,10 @@ class DispatchTask implements Task
         }
 
         return $container;
+    }
+
+    public function getEnvelope(): Envelope
+    {
+        return $this->envelope;
     }
 }

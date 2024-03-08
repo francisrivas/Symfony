@@ -11,7 +11,6 @@
 
 namespace Symfony\Component\Messenger;
 
-use Amp\Parallel\Worker\ContextWorkerPool;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Clock\Clock;
@@ -38,6 +37,9 @@ use Symfony\Component\Messenger\Stamp\TransportMessageIdStamp;
 use Symfony\Component\Messenger\Transport\Receiver\QueueReceiverInterface;
 use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
 use Symfony\Component\RateLimiter\LimiterInterface;
+
+use function Amp\Future\awaitAll;
+use function Amp\Future\awaitAny;
 
 /**
  * @author Samuel Roze <samuel.roze@gmail.com>
@@ -110,7 +112,7 @@ class Worker
 
                 if (!$envelopes) {
                     // flush
-                    $this->handleFutures($transportName);
+                    $this->handleFutures($transportName, $options['parallel-limit'] ?? 0);
                 }
 
                 foreach ($envelopes as $envelope) {
@@ -180,10 +182,6 @@ class Worker
                 $envelope = $envelope->with(new AckStamp($ack));
             }
 
-            if ($busNameStamp && 'parallel_bus' === $busNameStamp->getBusName() && !class_exists(ContextWorkerPool::class)) {
-                throw new \LogicException(sprintf('Package "amp/parallel" is required to use the "%s". Try running "composer require amphp/parallel".', ParallelMessageBus::class));
-            }
-
             $envelope = $this->bus->dispatch($envelope);
 
             // "non concurrent" behaviour
@@ -193,6 +191,7 @@ class Worker
                 return;
             }
 
+            $envelope = $envelope->withoutStampsOfType(FutureStamp::class);
             self::$futures[] = [$futureStamp->getFuture(), $envelope];
         } catch (\Throwable $e) {
             $this->preAck($envelope, $transportName, $acked, $e);
@@ -204,7 +203,7 @@ class Worker
             return;
         }
 
-        $this->handleFutures($transportName);
+        $this->handleFutures($transportName, $parallelProcessesLimit);
     }
 
     private function preAck(Envelope $envelope, string $transportName, bool $acked, $e): void
@@ -328,19 +327,31 @@ class Worker
         return $this->metadata;
     }
 
-    public function handleFutures(string $transportName): void
+    public function handleFutures(string $transportName, $parallelProcessLimit): void
     {
         $toHandle = self::$futures;
         self::$futures = [];
-        $errors = [];
 
-        foreach ($toHandle as $future) {
-            $e = null;
+        if (!$toHandle) {
+            return;
+        }
+
+        $futuresReceived = [];
+        $envelopesAssociated = [];
+
+        foreach ($toHandle as $combo) {
+            $futuresReceived[] = $combo[0];
+            $envelopesAssociated[] = $combo[1];
+        }
+
+        [$errorsFromAwait, $executions] = awaitAll($futuresReceived);
+
+        foreach ($errorsFromAwait as $index => $error) {
             try {
-                $execution = $future[0]->await();
+                $execution = $futuresReceived[$index]->await();
                 $envelope = $execution->await();
             } catch (\Throwable $e) {
-                $errors[] = [$future[1]->withoutStampsOfType(FutureStamp::class), $e];
+                $this->preAck($envelopesAssociated[$index]->withoutStampsOfType(FutureStamp::class), $transportName, false, $e);
 
                 continue;
             }
@@ -348,14 +359,46 @@ class Worker
             $this->preAck($envelope, $transportName, false, null);
         }
 
-        if (!$errors) {
+        $futures = array_map(fn ($execution) => $execution->getFuture(), $executions);
+
+        $i = 0;
+
+        while ($executions) {
+            if ($i === $parallelProcessLimit) {
+                break;
+            }
+
+            try {
+                $envelope = awaitAny($futures);
+                $futures = [];
+
+                $executions = array_filter($executions, fn ($ex) => $ex->getTask()->getEnvelope()->last(TransportMessageIdStamp::class)->getId() !== $envelope->last(TransportMessageIdStamp::class)->getId());
+                $futures = array_map(fn ($execution) => $execution->getFuture(), $executions);
+
+                ++$i;
+            } catch (\Throwable $e) {
+                ++$i;
+                continue;
+            }
+
+            $this->preAck($envelope, $transportName, false, null);
+        }
+
+        if (!$executions) {
             return;
         }
 
-        foreach ($errors as $combo) {
-            [$envelope, $e] = $combo;
+        foreach ($executions as $execution) {
+            try {
+                $envelope = $execution->await();
+            } catch (\Throwable $e) {
+                $envelope = $execution->getTask()->getEnvelope()->withoutStampsOfType(FutureStamp::class);
+                $this->preAck($envelope, $transportName, false, $e);
 
-            $this->preAck($envelope, $transportName, false, $e);
+                continue;
+            }
+            // It should not happen
+            $this->preAck($envelope, $transportName, false, null);
         }
     }
 }

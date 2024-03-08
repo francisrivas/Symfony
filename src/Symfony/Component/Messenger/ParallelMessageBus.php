@@ -17,12 +17,20 @@ use Symfony\Component\Messenger\Stamp\FutureStamp;
 use function Amp\async;
 use function Amp\Parallel\Worker\workerPool;
 
-class ParallelMessageBus implements MessageBusInterface
+/**
+ * Using this bus will enable concurrent message processing without the need for multiple workers
+ * using multiple processes or threads
+ * It requires a ZTS build of PHP 8.2+ and ext-parallel to create threads; otherwise, it will use processes.
+ */
+final class ParallelMessageBus implements MessageBusInterface
 {
     public static ?ContextWorkerPool $worker = null;
 
     public function __construct(private array $something, private readonly string $env, private readonly string $debug, private readonly string $projectdir)
     {
+        if (!class_exists(ContextWorkerPool::class)) {
+            throw new \LogicException(sprintf('Package "amp/parallel" is required to use the "%s". Try running "composer require amphp/parallel".', self::class));
+        }
     }
 
     public function dispatch(object $message, array $stamps = []): Envelope

@@ -13,7 +13,12 @@ namespace Symfony\Component\Messenger\Stamp;
 
 use Amp\Future;
 
-readonly class FutureStamp implements StampInterface
+/**
+ * This stamps allows passing the future representing the potential result of the handler,
+ * which is treated as an asynchronous operation,
+ * and will be retrieved later by the worker to ack or nack based on the obtained result.
+ */
+final readonly class FutureStamp implements StampInterface
 {
     public function __construct(private Future $future)
     {
