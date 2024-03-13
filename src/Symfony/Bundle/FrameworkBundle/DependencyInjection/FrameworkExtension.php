@@ -1053,6 +1053,10 @@ class FrameworkExtension extends Extension
             $realDefinition = new Workflow\Definition($places, $trs, $initialMarking);
             $validator->validate($realDefinition, $name);
 
+            foreach ($workflow['definition_validators'] as $validatorClass) {
+                (new $validatorClass())->validate($realDefinition, $name);
+            }
+
             // Add workflow to Registry
             if ($workflow['supports']) {
                 foreach ($workflow['supports'] as $supportedClassName) {
