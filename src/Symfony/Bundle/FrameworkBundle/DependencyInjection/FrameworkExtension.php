@@ -111,6 +111,7 @@ use Symfony\Component\Messenger\Bridge as MessengerBridge;
 use Symfony\Component\Messenger\Handler\BatchHandlerInterface;
 use Symfony\Component\Messenger\MessageBus;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Middleware\LockMiddleware;
 use Symfony\Component\Messenger\Middleware\RouterContextMiddleware;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\TransportFactoryInterface as MessengerTransportFactoryInterface;
@@ -1986,6 +1987,10 @@ class FrameworkExtension extends Extension
     {
         $loader->load('lock.php');
 
+        if (!class_exists(LockMiddleware::class)) {
+            $container->removeDefinition('messenger.middleware.lock_middleware');
+        }
+
         foreach ($config['resources'] as $resourceName => $resourceStores) {
             if (0 === \count($resourceStores)) {
                 continue;
@@ -2124,13 +2129,16 @@ class FrameworkExtension extends Extension
                 ['id' => 'reject_redelivered_message_middleware'],
                 ['id' => 'dispatch_after_current_bus'],
                 ['id' => 'failed_message_processing_middleware'],
-                ['id' => 'lock_middleware'],
             ],
             'after' => [
                 ['id' => 'send_message'],
                 ['id' => 'handle_message'],
             ],
         ];
+        if (class_exists(LockMiddleware::class)) {
+            $defaultMiddleware['before'][] = ['id' => 'lock_middleware'];
+        }
+
         foreach ($config['buses'] as $busId => $bus) {
             $middleware = $bus['middleware'];
 
