@@ -1987,7 +1987,7 @@ class FrameworkExtension extends Extension
     {
         $loader->load('lock.php');
 
-        if (!class_exists(LockMiddleware::class)) {
+        if (!class_exists(LockMiddleware::class) || !class_exists(LockFactory::class)) {
             $container->removeDefinition('messenger.middleware.lock_middleware');
         }
 
