@@ -179,7 +179,7 @@ class InputDefinitionTest extends TestCase
             new InputArgument('foo1', InputArgument::OPTIONAL),
             new InputArgument('foo2', InputArgument::OPTIONAL, '', 'default'),
             new InputArgument('foo3', InputArgument::OPTIONAL | InputArgument::IS_ARRAY),
-        //  new InputArgument('foo4', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, '', [1, 2]),
+            //  new InputArgument('foo4', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, '', [1, 2]),
         ]);
         $this->assertEquals(['foo1' => null, 'foo2' => 'default', 'foo3' => []], $definition->getArgumentDefaults(), '->getArgumentDefaults() return the default values for each argument');
 
@@ -387,7 +387,7 @@ class InputDefinitionTest extends TestCase
             [
                 new InputDefinition([new InputOption('foo'), new InputOption('deprecated', null, InputOption::DEPRECATED)]),
                 '[--foo] [--deprecated]',
-                'puts deprecated optional options in square brackets'
+                'puts deprecated optional options in square brackets',
             ],
 
             [new InputDefinition([new InputOption('hidden', null, InputOption::HIDDEN)]), '', 'hidden option is not visible'],
@@ -402,7 +402,7 @@ class InputDefinitionTest extends TestCase
             new InputOption('bar'),
             new InputOption('deprecated'),
             new InputOption('hidden'),
-            new InputArgument('cat')
+            new InputArgument('cat'),
         ]);
         $this->assertEquals('[options] [--] [<cat>]', $definition->getSynopsis(true), '->getSynopsis(true) groups options in [options]');
     }
