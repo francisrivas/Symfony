@@ -74,12 +74,12 @@
         </InvalidArgument>
         <InvalidReturnStatement>
           <errorLevel type="suppress">
-            <file name="src/Symfony/Component/Mapper/ObjectMapper.php" />
+            <file name="src/Symfony/Component/ObjectMapper/ObjectMapper.php" />
           </errorLevel>
         </InvalidReturnStatement>
         <InvalidReturnType>
           <errorLevel type="suppress">
-            <file name="src/Symfony/Component/Mapper/ObjectMapper.php" />
+            <file name="src/Symfony/Component/ObjectMapper/ObjectMapper.php" />
           </errorLevel>
         </InvalidReturnType>
     </issueHandlers>
