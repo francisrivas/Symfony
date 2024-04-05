@@ -9,21 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Component\ObjectMapper;
-
-use Symfony\Component\ObjectMapper\Attributes\Map;
+namespace Symfony\Component\ObjectMapper\Exception;
 
 /**
- * Factory to create Mapper metadata.
- *
- * @internal
+ * @experimental
  *
  * @author Antoine Bluchet <soyuka@gmail.com>
  */
-interface MapperMetadataFactoryInterface
+class MappingTransformException extends RuntimeException
 {
-    /**
-     * @return Map[]
-     */
-    public function create(object $object): array;
 }

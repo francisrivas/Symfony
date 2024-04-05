@@ -13,7 +13,9 @@ namespace Symfony\Component\ObjectMapper;
 
 use Psr\Container\ContainerInterface;
 use Symfony\Component\ObjectMapper\Attributes\Map;
-use Symfony\Component\ObjectMapper\Exception\RuntimeException;
+use Symfony\Component\ObjectMapper\Exception\MappingException;
+use Symfony\Component\ObjectMapper\Exception\MappingTransformException;
+use Symfony\Component\ObjectMapper\Exception\ReflectionException;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 /**
@@ -32,11 +34,11 @@ final class ObjectMapper implements ObjectMapperInterface
     public function __construct(
         private readonly MapperMetadataFactoryInterface $metadataFactory = new ReflectionMapperMetadataFactory(),
         private readonly ?PropertyAccessorInterface $propertyAccessor = null,
-        private readonly ?ContainerInterface $serviceLocator = null
+        private readonly ?ContainerInterface $container = null,
     ) {
     }
 
-    public function map(object $object, object|string $to = null): object
+    public function map(object $object, object|string|null $to = null): object
     {
         static $objectMap = null;
         $objectMapInitialized = false;
@@ -46,24 +48,39 @@ final class ObjectMapper implements ObjectMapperInterface
             $objectMapInitialized = true;
         }
 
-        $refl = new \ReflectionClass($object);
+        try {
+            $refl = new \ReflectionClass($object);
+        } catch (\ReflectionException $e) {
+            throw new ReflectionException($e->getMessage(), $e->getCode(), $e);
+        }
 
         $metadata = $this->metadataFactory->create($object);
         $map = $this->getMapTo($metadata, null, $object);
         $to ??= $map?->to;
 
         if (!(\is_string($to) && class_exists($to)) && !\is_object($to)) {
-            throw new RuntimeException(sprintf('Attribute of type "%s" expected on "%s.', Map::class, $refl->getName()));
+            throw new MappingException(sprintf('Attribute of type "%s" expected on "%s.', Map::class, $refl->getName()));
         }
 
-        $toRefl = new \ReflectionClass($to);
-        $mapped = \is_object($to) ? $to : $toRefl->newInstanceWithoutConstructor();
+        $mappingToObject = \is_object($to);
+
+        try {
+            $toRefl = new \ReflectionClass($to);
+        } catch (\ReflectionException $e) {
+            throw new ReflectionException($e->getMessage(), $e->getCode(), $e);
+        }
+
+        $mapped = $mappingToObject ? $to : $toRefl->newInstanceWithoutConstructor();
         if ($map && $map->transform) {
             $mapped = $this->applyTransforms($map, $mapped, $mapped);
+
+            if (!\is_object($mapped)) {
+                throw new MappingTransformException('Can not map to a non-object.');
+            }
         }
 
-        if (!\is_object($mapped)) {
-            throw new RuntimeException('Can not map to a non-object.');
+        if (!is_a($mapped, $to, !$mappingToObject)) {
+            throw new MappingException(sprintf('Expected the mapped object to be an instance of "%s".', $mappingToObject ? $to::class : $to));
         }
 
         $objectMap[$object] = $mapped;
@@ -72,6 +89,10 @@ final class ObjectMapper implements ObjectMapperInterface
         $constructor = $toRefl->getConstructor();
         foreach ($constructor?->getParameters() ?? [] as $parameter) {
             $parameterName = $parameter->getName();
+            if (!$toRefl->hasProperty($parameterName)) {
+                continue;
+            }
+
             $property = $toRefl->getProperty($parameterName);
 
             // The mapped class was probably instantiated in a transform we can't write a readonly property
@@ -88,7 +109,6 @@ final class ObjectMapper implements ObjectMapperInterface
             }
 
             $propertyName = $property->getName();
-
             $map = null;
             foreach ($property->getAttributes(Map::class) as $attr) {
                 $map = $attr->newInstance();
@@ -139,8 +159,12 @@ final class ObjectMapper implements ObjectMapperInterface
             }
         }
 
-        if ($arguments) {
-            $constructor?->invokeArgs($mapped, $arguments);
+        if (!$mappingToObject && $arguments) {
+            try {
+                $constructor?->invokeArgs($mapped, $arguments);
+            } catch (\ReflectionException $e) {
+                throw new ReflectionException($e->getMessage(), $e->getCode(), $e);
+            }
         }
 
         if ($objectMapInitialized) {
@@ -155,7 +179,12 @@ final class ObjectMapper implements ObjectMapperInterface
      */
     private function call(callable $fn, mixed $value, object $object): mixed
     {
-        $refl = new \ReflectionFunction(\Closure::fromCallable($fn));
+        try {
+            $refl = new \ReflectionFunction(\Closure::fromCallable($fn));
+        } catch (\ReflectionException $e) {
+            throw new ReflectionException($e);
+        }
+
         $withParameters = $refl->getParameters();
         $withArgs = [$value];
 
@@ -170,14 +199,14 @@ final class ObjectMapper implements ObjectMapperInterface
         return \call_user_func_array($fn, $withArgs);
     }
 
-    private function getCallable(string|callable $fn = null): callable|string|null
+    private function getCallable(string|callable|null $fn = null): callable|string|null
     {
         if (!$fn || !\is_string($fn)) {
             return $fn;
         }
 
-        if ($this->serviceLocator && $this->serviceLocator->has($fn)) {
-            return $this->serviceLocator->get($fn);
+        if ($this->container && $this->container->has($fn)) {
+            return $this->container->get($fn);
         }
 
         return $fn;
@@ -208,9 +237,7 @@ final class ObjectMapper implements ObjectMapperInterface
 
         if (\is_callable($transforms)) {
             $transforms = [$transforms];
-        }
-
-        if (!\is_array($transforms)) {
+        } elseif (!\is_array($transforms)) {
             $transforms = [$transforms];
         }
 

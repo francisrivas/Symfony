@@ -13,7 +13,12 @@ namespace Symfony\Component\ObjectMapper;
 
 use Symfony\Component\ObjectMapper\Attributes\Map;
 
-class ReflectionMapperMetadataFactory implements MapperMetadataFactoryInterface
+/**
+ * @internal
+ *
+ * @author Antoine Bluchet <soyuka@gmail.com>
+ */
+final class ReflectionMapperMetadataFactory implements MapperMetadataFactoryInterface
 {
     public function create(object $object): array
     {

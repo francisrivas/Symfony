@@ -11,6 +11,10 @@
 
 namespace Symfony\Component\ObjectMapper;
 
+use Symfony\Component\ObjectMapper\Exception\MappingException;
+use Symfony\Component\ObjectMapper\Exception\MappingTransformException;
+use Symfony\Component\ObjectMapper\Exception\ReflectionException;
+
 /**
  * Object to object mapper.
  *
@@ -28,7 +32,7 @@ interface ObjectMapperInterface
      *
      * @return T
      *
-     * @throw RuntimeException|\ReflectionException
+     * @throw MappingException|MappingTransformException|ReflectionException
      */
-    public function map(object $object, object|string $to = null): object;
+    public function map(object $object, object|string|null $to = null): object;
 }
