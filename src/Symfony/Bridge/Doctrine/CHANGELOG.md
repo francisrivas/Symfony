@@ -4,6 +4,7 @@ CHANGELOG
 7.1
 ---
 
+ * Add type aliases support to `EntityValueResolver` through the `addTypeAlias` method
  * Deprecate the `DoctrineExtractor::getTypes()` method, use `DoctrineExtractor::getType()` instead
 
 7.0
