@@ -1823,17 +1823,17 @@ EOTXT
 
         yield 'Borderless style' => [
             <<<EOTXT
- ==============================
-    ISBN: 99921-58-10-7
-   Title: Divine Comedy
-  Author: Dante Alighieri
-   Price: 9.95
- ==============================
-    ISBN: 9971-5-0210-0
-   Title: A Tale of Two Cities
-  Author: Charles Dickens
-   Price: 139.25
- ==============================
+ ============================== 
+    ISBN: 99921-58-10-7         
+   Title: Divine Comedy         
+  Author: Dante Alighieri       
+   Price: 9.95                  
+ ============================== 
+    ISBN: 9971-5-0210-0         
+   Title: A Tale of Two Cities  
+  Author: Charles Dickens       
+   Price: 139.25                
+ ============================== 
 
 EOTXT
             ,
@@ -1844,15 +1844,15 @@ EOTXT
 
         yield 'Compact style' => [
             <<<EOTXT
-  ISBN: 99921-58-10-7
- Title: Divine Comedy
-Author: Dante Alighieri
- Price: 9.95
+  ISBN: 99921-58-10-7        
+ Title: Divine Comedy        
+Author: Dante Alighieri      
+ Price: 9.95                 
 
-  ISBN: 9971-5-0210-0
- Title: A Tale of Two Cities
-Author: Charles Dickens
- Price: 139.25
+  ISBN: 9971-5-0210-0        
+ Title: A Tale of Two Cities 
+Author: Charles Dickens      
+ Price: 139.25               
 
 EOTXT
             ,
@@ -1863,17 +1863,17 @@ EOTXT
 
         yield 'symfony-style-guide style' => [
             <<<EOTXT
- ------------------------------
-    ISBN: 99921-58-10-7
-   Title: Divine Comedy
-  Author: Dante Alighieri
-   Price: 9.95
- ------------------------------
-    ISBN: 9971-5-0210-0
-   Title: A Tale of Two Cities
-  Author: Charles Dickens
-   Price: 139.25
- ------------------------------
+ ------------------------------ 
+    ISBN: 99921-58-10-7         
+   Title: Divine Comedy         
+  Author: Dante Alighieri       
+   Price: 9.95                  
+ ------------------------------ 
+    ISBN: 9971-5-0210-0         
+   Title: A Tale of Two Cities  
+  Author: Charles Dickens       
+   Price: 139.25                
+ ------------------------------ 
 
 EOTXT
             ,
