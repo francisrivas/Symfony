@@ -4,6 +4,7 @@ CHANGELOG
 7.1
 ---
 
+ * Add `SentForRetryStamp` that identifies whether a failed message was sent for retry
  * Add option `redis_sentinel` as an alias for `sentinel_master`
  * Add `--all` option to the `messenger:consume` command
  * Add parameter `$jitter` to `MultiplierRetryStrategy` in order to randomize delay and prevent the thundering herd effect
