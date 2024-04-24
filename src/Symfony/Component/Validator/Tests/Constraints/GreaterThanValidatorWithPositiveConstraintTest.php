@@ -46,6 +46,9 @@ class GreaterThanValidatorWithPositiveConstraintTest extends GreaterThanValidato
         ];
     }
 
+    /**
+     * @group legacy
+     */
     public function testThrowsConstraintExceptionIfPropertyPath()
     {
         $this->expectException(ConstraintDefinitionException::class);
@@ -54,6 +57,9 @@ class GreaterThanValidatorWithPositiveConstraintTest extends GreaterThanValidato
         return new Positive(['propertyPath' => 'field']);
     }
 
+    /**
+     * @group legacy
+     */
     public function testThrowsConstraintExceptionIfValue()
     {
         $this->expectException(ConstraintDefinitionException::class);

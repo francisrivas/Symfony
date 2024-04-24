@@ -72,18 +72,18 @@ class XmlFileLoaderTest extends TestCase
         $expected->addConstraint(new ConstraintWithNamedArguments(['foo', 'bar']));
         $expected->addConstraint(new ConstraintWithoutValueWithNamedArguments(['foo']));
         $expected->addPropertyConstraint('firstName', new NotNull());
-        $expected->addPropertyConstraint('firstName', new Range(['min' => 3]));
+        $expected->addPropertyConstraint('firstName', new Range(min: 3));
         $expected->addPropertyConstraint('firstName', new Choice(['A', 'B']));
-        $expected->addPropertyConstraint('firstName', new All([new NotNull(), new Range(['min' => 3])]));
-        $expected->addPropertyConstraint('firstName', new All(['constraints' => [new NotNull(), new Range(['min' => 3])]]));
-        $expected->addPropertyConstraint('firstName', new Collection(['fields' => [
-            'foo' => [new NotNull(), new Range(['min' => 3])],
-            'bar' => [new Range(['min' => 5])],
-        ]]));
-        $expected->addPropertyConstraint('firstName', new Choice([
-            'message' => 'Must be one of %choices%',
-            'choices' => ['A', 'B'],
+        $expected->addPropertyConstraint('firstName', new All([new NotNull(), new Range(min: 3)]));
+        $expected->addPropertyConstraint('firstName', new All([new NotNull(), new Range(min: 3)]));
+        $expected->addPropertyConstraint('firstName', new Collection([
+            'foo' => [new NotNull(), new Range(min: 3)],
+            'bar' => [new Range(min: 5)],
         ]));
+        $expected->addPropertyConstraint('firstName', new Choice(
+            message: 'Must be one of %choices%',
+            choices: ['A', 'B'],
+        ));
         $expected->addGetterConstraint('lastName', new NotNull());
         $expected->addGetterConstraint('valid', new IsTrue());
         $expected->addGetterConstraint('permissions', new IsTrue());
@@ -99,7 +99,7 @@ class XmlFileLoaderTest extends TestCase
         $loader->loadClassMetadata($metadata);
 
         $expected = new ClassMetadata(Entity::class);
-        $expected->addPropertyConstraint('firstName', new Regex(['pattern' => '/^1/', 'match' => false]));
+        $expected->addPropertyConstraint('firstName', new Regex(pattern: '/^1/', match: false));
 
         $properties = $metadata->getPropertyMetadata('firstName');
         $constraints = $properties[0]->getConstraints();

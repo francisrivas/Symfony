@@ -13,6 +13,7 @@ namespace Symfony\Component\Validator\Constraints;
 
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
+use Symfony\Component\Validator\Attribute\HasNamedArguments;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\LogicException;
 
@@ -35,6 +36,7 @@ class When extends Composite
      * @param string[]|null                         $groups
      * @param array<string,mixed>                   $options
      */
+    #[HasNamedArguments]
     public function __construct(string|Expression|array $expression, array|Constraint|null $constraints = null, ?array $values = null, ?array $groups = null, $payload = null, array $options = [])
     {
         if (!class_exists(ExpressionLanguage::class)) {
@@ -42,6 +44,8 @@ class When extends Composite
         }
 
         if (\is_array($expression)) {
+            trigger_deprecation('symfony/validator', '7.2', 'Passing an array of options to configure the %s constraint is deprecated, use named arguments instead.', static::class);
+
             $options = array_merge($expression, $options);
         } else {
             $options['expression'] = $expression;

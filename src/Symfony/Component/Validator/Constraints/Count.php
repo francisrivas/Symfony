@@ -11,6 +11,7 @@
 
 namespace Symfony\Component\Validator\Constraints;
 
+use Symfony\Component\Validator\Attribute\HasNamedArguments;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\MissingOptionsException;
 
@@ -50,6 +51,7 @@ class Count extends Constraint
      * @param string[]|null                $groups
      * @param array<mixed,string>          $options
      */
+    #[HasNamedArguments]
     public function __construct(
         int|array|null $exactly = null,
         ?int $min = null,
@@ -64,6 +66,8 @@ class Count extends Constraint
         array $options = [],
     ) {
         if (\is_array($exactly)) {
+            trigger_deprecation('symfony/validator', '7.2', 'Passing an array of options to configure the %s constraint is deprecated, use named arguments instead.', static::class);
+
             $options = array_merge($exactly, $options);
             $exactly = $options['value'] ?? null;
         }

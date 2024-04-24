@@ -198,17 +198,17 @@ final class PropertyInfoLoader implements LoaderInterface
     private function getTypeConstraint(TypeInfoType $type): ?Type
     {
         if ($type instanceof UnionType || $type instanceof IntersectionType) {
-            return ($type->isA(TypeIdentifier::INT) || $type->isA(TypeIdentifier::FLOAT) || $type->isA(TypeIdentifier::STRING) || $type->isA(TypeIdentifier::BOOL)) ? new Type(['type' => 'scalar']) : null;
+            return ($type->isA(TypeIdentifier::INT) || $type->isA(TypeIdentifier::FLOAT) || $type->isA(TypeIdentifier::STRING) || $type->isA(TypeIdentifier::BOOL)) ? new Type('scalar') : null;
         }
 
         $baseType = $type->getBaseType();
 
         if ($baseType instanceof ObjectType) {
-            return new Type(['type' => $baseType->getClassName()]);
+            return new Type($baseType->getClassName());
         }
 
         if (TypeIdentifier::MIXED !== $baseType->getTypeIdentifier()) {
-            return new Type(['type' => $baseType->getTypeIdentifier()->value]);
+            return new Type($baseType->getTypeIdentifier()->value);
         }
 
         return null;

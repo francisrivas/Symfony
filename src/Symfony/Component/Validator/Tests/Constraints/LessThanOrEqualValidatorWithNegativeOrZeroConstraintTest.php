@@ -46,6 +46,9 @@ class LessThanOrEqualValidatorWithNegativeOrZeroConstraintTest extends LessThanO
         ];
     }
 
+    /**
+     * @group legacy
+     */
     public function testThrowsConstraintExceptionIfPropertyPath()
     {
         $this->expectException(ConstraintDefinitionException::class);
@@ -54,6 +57,9 @@ class LessThanOrEqualValidatorWithNegativeOrZeroConstraintTest extends LessThanO
         return new NegativeOrZero(['propertyPath' => 'field']);
     }
 
+    /**
+     * @group legacy
+     */
     public function testThrowsConstraintExceptionIfValue()
     {
         $this->expectException(ConstraintDefinitionException::class);
