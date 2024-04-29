@@ -232,17 +232,20 @@ class PriorityTaggedServiceTraitTest extends TestCase
         $container = new ContainerBuilder();
         $container->setParameter('custom_param_service1', 'bar');
         $container->setParameter('custom_param_service2', 'baz');
+        $container->setParameter('custom_param_service2_empty', '');
         $container->register('service1')->addTag('my_custom_tag', ['foo' => '%custom_param_service1%']);
 
         $definition = $container->register('service2', BarTagClass::class);
         $definition->addTag('my_custom_tag', ['foo' => '%custom_param_service2%', 'priority' => 100]);
+        $definition->addTag('my_custom_tag', ['foo' => '%custom_param_service2_empty%']);
 
         $priorityTaggedServiceTraitImplementation = new PriorityTaggedServiceTraitImplementation();
 
-        $tag = new TaggedIteratorArgument('my_custom_tag', 'foo');
+        $tag = new TaggedIteratorArgument('my_custom_tag', 'foo', 'getFooBar');
         $expected = [
             'baz' => new TypedReference('service2', BarTagClass::class),
             'bar' => new Reference('service1'),
+            'bar_tab_class_with_defaultmethod' => new TypedReference('service2', BarTagClass::class),
         ];
         $services = $priorityTaggedServiceTraitImplementation->test($tag, $container);
         $this->assertSame(array_keys($expected), array_keys($services));
