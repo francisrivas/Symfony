@@ -11,7 +11,6 @@
 
 namespace Symfony\Component\ObjectMapper;
 
-use Psr\Container\ContainerInterface;
 use Symfony\Component\ObjectMapper\Attributes\Map;
 use Symfony\Component\ObjectMapper\Exception\MappingException;
 use Symfony\Component\ObjectMapper\Exception\MappingTransformException;
@@ -34,7 +33,6 @@ final class ObjectMapper implements ObjectMapperInterface
     public function __construct(
         private readonly MapperMetadataFactoryInterface $metadataFactory = new ReflectionMapperMetadataFactory(),
         private readonly ?PropertyAccessorInterface $propertyAccessor = null,
-        private readonly ?ContainerInterface $container = null,
     ) {
     }
 
@@ -63,7 +61,6 @@ final class ObjectMapper implements ObjectMapperInterface
         }
 
         $mappingToObject = \is_object($to);
-
         try {
             $toRefl = new \ReflectionClass($to);
         } catch (\ReflectionException $e) {
@@ -79,7 +76,7 @@ final class ObjectMapper implements ObjectMapperInterface
             }
         }
 
-        if (!is_a($mapped, $to, !$mappingToObject)) {
+        if (!is_a($mapped, $toRefl->getName(), false)) {
             throw new MappingException(sprintf('Expected the mapped object to be an instance of "%s".', $mappingToObject ? $to::class : $to));
         }
 
@@ -203,10 +200,6 @@ final class ObjectMapper implements ObjectMapperInterface
     {
         if (!$fn || !\is_string($fn)) {
             return $fn;
-        }
-
-        if ($this->container && $this->container->has($fn)) {
-            return $this->container->get($fn);
         }
 
         return $fn;

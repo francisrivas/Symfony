@@ -12,7 +12,6 @@
 namespace Symfony\Component\ObjectMapper\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 use Symfony\Component\ObjectMapper\Exception\RuntimeException;
 use Symfony\Component\ObjectMapper\ObjectMapper;
 use Symfony\Component\ObjectMapper\ReflectionMapperMetadataFactory;
@@ -76,16 +75,6 @@ final class MapTest extends TestCase
         $d->concat = 'shouldtestme';
 
         yield [$d, [$a], [new ReflectionMapperMetadataFactory(), PropertyAccess::createPropertyAccessor()]];
-
-        $e = clone $b;
-        $e->transform = 'Test';
-        $serviceLocator = $this->createMock(ContainerInterface::class);
-        $serviceLocator->method('has')->willReturnCallback(function ($v): bool {
-            return 'strtoupper' === $v;
-        });
-        $serviceLocator->method('get')->with('strtoupper')->willReturn(fn ($v) => ucfirst($v));
-
-        yield [$e, [$a], [new ReflectionMapperMetadataFactory(), null, $serviceLocator]];
 
         yield [new MultipleTargetsC(), [new MultipleTargetsA()]];
     }

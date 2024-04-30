@@ -16,6 +16,6 @@ namespace Symfony\Component\ObjectMapper\Exception;
  *
  * @author Antoine Bluchet <soyuka@gmail.com>
  */
-class MappingTransformException extends RuntimeException
+final class MappingTransformException extends RuntimeException
 {
 }
