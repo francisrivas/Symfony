@@ -16,7 +16,7 @@ use Symfony\Component\ObjectMapper\Attributes\Map;
 /**
  * Factory to create Mapper metadata.
  *
- * @internal
+ * @experimental
  *
  * @author Antoine Bluchet <soyuka@gmail.com>
  */
@@ -25,5 +25,5 @@ interface MapperMetadataFactoryInterface
     /**
      * @return Map[]
      */
-    public function create(object $object): array;
+    public function create(object $object, ?string $property = null, array $context = []): array;
 }

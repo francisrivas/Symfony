@@ -13,8 +13,8 @@ namespace Symfony\Component\ObjectMapper\Tests\Fixtures\MultipleTargets;
 
 use Symfony\Component\ObjectMapper\Attributes\Map;
 
-#[Map(to: B::class, if: [A::class, 'shouldMapToB'])]
-#[Map(to: C::class, if: [A::class, 'shouldMapToC'])]
+#[Map(target: B::class, if: [A::class, 'shouldMapToB'])]
+#[Map(target: C::class, if: [A::class, 'shouldMapToC'])]
 class A
 {
     public function __construct(public readonly string $foo = 'bar')

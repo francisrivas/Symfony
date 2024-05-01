@@ -1,0 +1,20 @@
+<?php
+
+namespace Symfony\Component\ObjectMapper\Tests\Fixtures\MapStruct;
+
+use Symfony\Component\ObjectMapper\Attributes\Map;
+use Symfony\Component\ObjectMapper\ObjectMapper;
+use Symfony\Component\ObjectMapper\ObjectMapperInterface;
+
+#[Map(source: Source::class, target: Target::class)]
+class AToBMapper implements ObjectMapperInterface
+{
+    public function __construct(private readonly ObjectMapper $objectMapper) {}
+
+    #[Map(source: 'propertyA', target: 'propertyD')]
+    #[Map(source: 'propertyB', if: false)]
+    public function map(object $source, object|string|null $target = null): object
+    {
+        return $this->objectMapper->map($source, $target);
+    }
+}

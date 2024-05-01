@@ -20,9 +20,13 @@ use Symfony\Component\ObjectMapper\Attributes\Map;
  */
 final class ReflectionMapperMetadataFactory implements MapperMetadataFactoryInterface
 {
-    public function create(object $object): array
+    public function create(object $object, ?string $property = null, array $context = []): array
     {
         $refl = new \ReflectionClass($object);
+        if ($property) {
+            $refl = $refl->getProperty($property);
+        }
+
         $mapTo = [];
         foreach ($refl->getAttributes(Map::class) as $mapAttribute) {
             $mapTo[] = $mapAttribute->newInstance();

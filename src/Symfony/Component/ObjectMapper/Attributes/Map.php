@@ -20,16 +20,18 @@ namespace Symfony\Component\ObjectMapper\Attributes;
  *
  * @psalm-type CallableType = string|callable(mixed $value, object $object): mixed
  */
-#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_PROPERTY | \Attribute::IS_REPEATABLE)]
-final class Map
+#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_PROPERTY | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
+class Map
 {
     /**
-     * @param string|class-string|null                                      $to        The property or the class to map to
+     * @param string|class-string|null                                      $source    The property or the class to map from
+     * @param string|class-string|null                                      $target    The property or the class to map to
      * @param string|bool|callable(mixed $value, object $object): bool|null $if        A boolean, Symfony service name or a callable that instructs whether to map
      * @param CallableType|CallableType[]|null                              $transform A Symfony service name or a callable that transform the value during mapping
      */
     public function __construct(
-        public readonly ?string $to = null,
+        public readonly ?string $target = null,
+        public readonly ?string $source = null,
         public readonly mixed $if = null,
         public readonly mixed $transform = null,
     ) {

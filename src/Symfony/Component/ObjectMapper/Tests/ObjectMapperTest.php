@@ -25,13 +25,17 @@ use Symfony\Component\ObjectMapper\Tests\Fixtures\DeeperRecursion\Relation;
 use Symfony\Component\ObjectMapper\Tests\Fixtures\DeeperRecursion\RelationDto;
 use Symfony\Component\ObjectMapper\Tests\Fixtures\InstanceCallback\A as InstanceCallbackA;
 use Symfony\Component\ObjectMapper\Tests\Fixtures\InstanceCallback\B as InstanceCallbackB;
+use Symfony\Component\ObjectMapper\Tests\Fixtures\MapStruct\AToBMapper;
+use Symfony\Component\ObjectMapper\Tests\Fixtures\MapStruct\MapStructMapperMetadataFactory;
+use Symfony\Component\ObjectMapper\Tests\Fixtures\MapStruct\Source;
+use Symfony\Component\ObjectMapper\Tests\Fixtures\MapStruct\Target;
 use Symfony\Component\ObjectMapper\Tests\Fixtures\MultipleTargets\A as MultipleTargetsA;
 use Symfony\Component\ObjectMapper\Tests\Fixtures\MultipleTargets\C as MultipleTargetsC;
 use Symfony\Component\ObjectMapper\Tests\Fixtures\Recursion\AB;
 use Symfony\Component\ObjectMapper\Tests\Fixtures\Recursion\Dto;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
-final class MapTest extends TestCase
+final class ObjectMapperTest extends TestCase
 {
     /**
      * @dataProvider mapProvider
@@ -116,5 +120,17 @@ final class MapTest extends TestCase
         $this->assertInstanceOf(InstanceCallbackB::class, $b);
         $this->assertSame($b->getId(), 1);
         $this->assertSame($b->name, 'test');
+    }
+
+    public function testMapStruct()
+    {
+        $a = new Source('a', 'b', 'c');
+        $metadata = new MapStructMapperMetadataFactory(AToBMapper::class);
+        $mapper = new ObjectMapper($metadata);
+        $aToBMapper = new AToBMapper($mapper);
+        $b = $aToBMapper->map($a);
+        $this->assertInstanceOf(Target::class, $b);
+        $this->assertSame($b->propertyD, 'a');
+        $this->assertSame($b->propertyC, 'c');
     }
 }

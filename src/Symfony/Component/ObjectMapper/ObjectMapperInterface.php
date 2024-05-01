@@ -27,12 +27,12 @@ use Symfony\Component\ObjectMapper\Exception\ReflectionException;
 interface ObjectMapperInterface
 {
     /**
-     * @param object                 $object The object to map from
-     * @param T|class-string<T>|null $to     The object or class to map to
+     * @param object                 $source The object to map from
+     * @param T|class-string<T>|null $target The object or class to map to
      *
      * @return T
      *
      * @throw MappingException|MappingTransformException|ReflectionException
      */
-    public function map(object $object, object|string|null $to = null): object;
+    public function map(object $source, object|string|null $target = null): object;
 }

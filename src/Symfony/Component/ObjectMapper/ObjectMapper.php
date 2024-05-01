@@ -36,7 +36,7 @@ final class ObjectMapper implements ObjectMapperInterface
     ) {
     }
 
-    public function map(object $object, object|string|null $to = null): object
+    public function map(object $source, object|string|null $target = null): object
     {
         static $objectMap = null;
         $objectMapInitialized = false;
@@ -47,27 +47,27 @@ final class ObjectMapper implements ObjectMapperInterface
         }
 
         try {
-            $refl = new \ReflectionClass($object);
+            $refl = new \ReflectionClass($source);
         } catch (\ReflectionException $e) {
             throw new ReflectionException($e->getMessage(), $e->getCode(), $e);
         }
 
-        $metadata = $this->metadataFactory->create($object);
-        $map = $this->getMapTo($metadata, null, $object);
-        $to ??= $map?->to;
+        $metadata = $this->metadataFactory->create($source);
+        $map = $this->getMapTarget($metadata, null, $source);
+        $target ??= $map?->target;
 
-        if (!(\is_string($to) && class_exists($to)) && !\is_object($to)) {
+        if (!(\is_string($target) && class_exists($target)) && !\is_object($target)) {
             throw new MappingException(sprintf('Attribute of type "%s" expected on "%s.', Map::class, $refl->getName()));
         }
 
-        $mappingToObject = \is_object($to);
+        $mappingToObject = \is_object($target);
         try {
-            $toRefl = new \ReflectionClass($to);
+            $targetRefl = new \ReflectionClass($target);
         } catch (\ReflectionException $e) {
             throw new ReflectionException($e->getMessage(), $e->getCode(), $e);
         }
 
-        $mapped = $mappingToObject ? $to : $toRefl->newInstanceWithoutConstructor();
+        $mapped = $mappingToObject ? $target : $targetRefl->newInstanceWithoutConstructor();
         if ($map && $map->transform) {
             $mapped = $this->applyTransforms($map, $mapped, $mapped);
 
@@ -76,21 +76,21 @@ final class ObjectMapper implements ObjectMapperInterface
             }
         }
 
-        if (!is_a($mapped, $toRefl->getName(), false)) {
-            throw new MappingException(sprintf('Expected the mapped object to be an instance of "%s".', $mappingToObject ? $to::class : $to));
+        if (!is_a($mapped, $targetRefl->getName(), false)) {
+            throw new MappingException(sprintf('Expected the mapped object to be an instance of "%s".', $mappingToObject ? $target::class : $target));
         }
 
-        $objectMap[$object] = $mapped;
+        $objectMap[$source] = $mapped;
 
         $arguments = [];
-        $constructor = $toRefl->getConstructor();
+        $constructor = $targetRefl->getConstructor();
         foreach ($constructor?->getParameters() ?? [] as $parameter) {
             $parameterName = $parameter->getName();
-            if (!$toRefl->hasProperty($parameterName)) {
+            if (!$targetRefl->hasProperty($parameterName)) {
                 continue;
             }
 
-            $property = $toRefl->getProperty($parameterName);
+            $property = $targetRefl->getProperty($parameterName);
 
             // The mapped class was probably instantiated in a transform we can't write a readonly property
             if ($property->isReadOnly() && ($property->isInitialized($mapped) && $property->getValue($mapped))) {
@@ -107,45 +107,44 @@ final class ObjectMapper implements ObjectMapperInterface
 
             $propertyName = $property->getName();
             $map = null;
-            foreach ($property->getAttributes(Map::class) as $attr) {
-                $map = $attr->newInstance();
+            foreach ($this->metadataFactory->create($source, $propertyName) as $map) {
                 $if = $map->if;
 
                 if (false === $if) {
                     continue 2;
                 }
 
-                if ($if && ($fn = $this->getCallable($if)) && !$this->call($fn, null, $object)) {
+                if ($if && ($fn = $this->getCallable($if)) && !$this->call($fn, null, $source)) {
                     continue 2;
                 }
 
                 break;
             }
 
-            $mapToProperty = $map?->to ?? $propertyName;
-            if (!$mapToProperty || !$toRefl->hasProperty($mapToProperty)) {
+            $mapToProperty = $map?->target ?? $propertyName;
+            if (!$mapToProperty || !$targetRefl->hasProperty($mapToProperty)) {
                 continue;
             }
 
-            $value = $this->propertyAccessor ? $this->propertyAccessor->getValue($object, $propertyName) : $object->{$propertyName};
+            $value = $this->propertyAccessor ? $this->propertyAccessor->getValue($source, $propertyName) : $source->{$propertyName};
             if ($map && $map->transform) {
-                $value = $this->applyTransforms($map, $value, $object);
+                $value = $this->applyTransforms($map, $value, $source);
             }
 
             if (
                 \is_object($value)
                 && ($innerMetadata = $this->metadataFactory->create($value))
-                && ($mapTo = $this->getMapTo($innerMetadata, $value, $object))
-                && (\is_string($mapTo->to) && class_exists($mapTo->to))
+                && ($mapTo = $this->getMapTarget($innerMetadata, $value, $source))
+                && (\is_string($mapTo->target) && class_exists($mapTo->target))
             ) {
-                $value = $this->applyTransforms($mapTo, $value, $object);
+                $value = $this->applyTransforms($mapTo, $value, $source);
 
-                if ($value === $object) {
+                if ($value === $source) {
                     $value = $mapped;
                 } elseif ($objectMap->contains($value)) {
                     $value = $objectMap[$value];
                 } else {
-                    $value = $this->map($value, $mapTo->to);
+                    $value = $this->map($value, $mapTo->target);
                 }
             }
 
@@ -208,11 +207,11 @@ final class ObjectMapper implements ObjectMapperInterface
     /**
      * @param Map[] $metadata
      */
-    private function getMapTo(array $metadata, mixed $value, object $object): ?Map
+    private function getMapTarget(array $metadata, mixed $value, object $source): ?Map
     {
         $mapTo = null;
         foreach ($metadata as $mapAttribute) {
-            if (($if = $mapAttribute->if) && ($fn = $this->getCallable($if)) && !$this->call($fn, $value, $object)) {
+            if (($if = $mapAttribute->if) && ($fn = $this->getCallable($if)) && !$this->call($fn, $value, $source)) {
                 continue;
             }
 
