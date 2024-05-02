@@ -255,13 +255,13 @@ XML,
         ];
 
         yield 'encode' => [
-            $this->getXmlSource(),
-            $this->getObject(),
+            self::getXmlSource(),
+            self::getObject(),
         ];
 
         yield 'encode with namespace' => [
-            $this->getNamespacedXmlSource(),
-            $this->getNamespacedArray(),
+            self::getNamespacedXmlSource(),
+            self::getNamespacedArray(),
         ];
     }
 
@@ -755,7 +755,7 @@ XML;
         $this->encoder->decode(' ', 'xml');
     }
 
-    protected function getXmlSource(): string
+    protected static function getXmlSource(): string
     {
         return '<?xml version="1.0"?>'."\n".
             '<response>'.
@@ -768,7 +768,7 @@ XML;
             '</response>'."\n";
     }
 
-    protected function getNamespacedXmlSource(): string
+    protected static function getNamespacedXmlSource(): string
     {
         return '<?xml version="1.0"?>'."\n".
             '<response xmlns="http://www.w3.org/2005/Atom" xmlns:app="http://www.w3.org/2007/app" xmlns:media="http://search.yahoo.com/mrss/" xmlns:gd="http://schemas.google.com/g/2005" xmlns:yt="http://gdata.youtube.com/schemas/2007">'.
@@ -781,7 +781,7 @@ XML;
             '</response>'."\n";
     }
 
-    protected function getNamespacedArray(): array
+    protected static function getNamespacedArray(): array
     {
         return [
             '@xmlns' => 'http://www.w3.org/2005/Atom',
@@ -818,7 +818,7 @@ XML;
     /**
      * @return Dummy
      */
-    protected function getObject(): object
+    protected static function getObject(): object
     {
         $obj = new Dummy();
         $obj->foo = 'foo';
