@@ -13,41 +13,40 @@ namespace Symfony\Component\ObjectMapper\Tests\Fixtures\MapStruct;
 
 use Symfony\Component\ObjectMapper\Attributes\Map;
 use Symfony\Component\ObjectMapper\MapperMetadataFactoryInterface;
+use Symfony\Component\ObjectMapper\Metadata\Mapping;
+use Symfony\Component\ObjectMapper\ObjectMapperInterface;
 
 /**
- * @internal
+ * A Metadata factory that implements the basics behind https://mapstruct.org/.
  *
  * @author Antoine Bluchet <soyuka@gmail.com>
  */
 final class MapStructMapperMetadataFactory implements MapperMetadataFactoryInterface
 {
-    public function __construct(private readonly string $mapper) {}
+    public function __construct(private readonly string $mapper)
+    {
+        if (!is_a($mapper, ObjectMapperInterface::class, true)) {
+            throw new \RuntimeException(sprintf('Mapper should implement "%s".', ObjectMapperInterface::class));
+        }
+    }
 
     public function create(object $object, ?string $property = null, array $context = []): array
     {
         $refl = new \ReflectionClass($this->mapper);
         $mapTo = [];
-        if (!$property) {
-            foreach ($refl->getAttributes(Map::class) as $mappingAttribute) {
-                $map = $mappingAttribute->newInstance();
-                if ($map->source === get_class($object)) {
-                    $mapTo[] = $map;
-                }
-            }
-            return $mapTo;
-        }
-
-        $method = $refl->getMethod('map');
-        foreach ($method->getAttributes(Map::class) as $mappingAttribute) {
+        $source = $property ?? $object::class;
+        foreach (($property ? $refl->getMethod('map') : $refl)->getAttributes(Map::class) as $mappingAttribute) {
             $map = $mappingAttribute->newInstance();
-            if ($map->source === $property) {
-                $mapTo[] = $map;
+            if ($map->source === $source) {
+                $mapTo[] = new Mapping(source: $map->source, target: $map->target, if: $map->if, transform: $map->transform);
+
                 continue;
             }
         }
 
-        if (!$mapTo) {
-            $mapTo[] = new Map(source: $property, target: $property);
+        // Default is to map properties to a property of the same name
+        if (!$mapTo && $property) {
+            $mapTo[] = new Mapping(source: $property, target: $property);
         }
 
         return $mapTo;

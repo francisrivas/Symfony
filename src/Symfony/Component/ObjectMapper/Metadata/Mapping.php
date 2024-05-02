@@ -9,19 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Component\ObjectMapper\Attributes;
+namespace Symfony\Component\ObjectMapper\Metadata;
 
 /**
  * Configures a class or a property to map to.
  *
- * @experimental
+ * @internal
  *
  * @author Antoine Bluchet <soyuka@gmail.com>
  *
  * @psalm-type CallableType = string|callable(mixed $value, object $object): mixed
  */
-#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_PROPERTY | \Attribute::TARGET_METHOD | \Attribute::IS_REPEATABLE)]
-readonly class Map
+readonly class Mapping
 {
     /**
      * @param string|class-string|null                                      $source    The property or the class to map from

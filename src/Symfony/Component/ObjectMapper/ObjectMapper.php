@@ -11,10 +11,10 @@
 
 namespace Symfony\Component\ObjectMapper;
 
-use Symfony\Component\ObjectMapper\Attributes\Map;
 use Symfony\Component\ObjectMapper\Exception\MappingException;
 use Symfony\Component\ObjectMapper\Exception\MappingTransformException;
 use Symfony\Component\ObjectMapper\Exception\ReflectionException;
+use Symfony\Component\ObjectMapper\Metadata\Mapping;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 /**
@@ -55,12 +55,12 @@ final class ObjectMapper implements ObjectMapperInterface
         $metadata = $this->metadataFactory->create($source);
         $map = $this->getMapTarget($metadata, null, $source);
         $target ??= $map?->target;
+        $mappingToObject = \is_object($target);
 
-        if (!(\is_string($target) && class_exists($target)) && !\is_object($target)) {
-            throw new MappingException(sprintf('Attribute of type "%s" expected on "%s.', Map::class, $refl->getName()));
+        if (!$target || (\is_string($target) && !class_exists($target))) {
+            throw new MappingException(sprintf('Mapping target "%s" not found.', $target));
         }
 
-        $mappingToObject = \is_object($target);
         try {
             $targetRefl = new \ReflectionClass($target);
         } catch (\ReflectionException $e) {
@@ -205,9 +205,9 @@ final class ObjectMapper implements ObjectMapperInterface
     }
 
     /**
-     * @param Map[] $metadata
+     * @param Mapping[] $metadata
      */
-    private function getMapTarget(array $metadata, mixed $value, object $source): ?Map
+    private function getMapTarget(array $metadata, mixed $value, object $source): ?Mapping
     {
         $mapTo = null;
         foreach ($metadata as $mapAttribute) {
@@ -221,7 +221,7 @@ final class ObjectMapper implements ObjectMapperInterface
         return $mapTo;
     }
 
-    private function applyTransforms(Map $map, mixed $value, object $object): mixed
+    private function applyTransforms(Mapping $map, mixed $value, object $object): mixed
     {
         if (!($transforms = $map->transform)) {
             return $value;

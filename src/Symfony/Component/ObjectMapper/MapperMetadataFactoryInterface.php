@@ -11,7 +11,7 @@
 
 namespace Symfony\Component\ObjectMapper;
 
-use Symfony\Component\ObjectMapper\Attributes\Map;
+use Symfony\Component\ObjectMapper\Metadata\Mapping;
 
 /**
  * Factory to create Mapper metadata.
@@ -23,7 +23,7 @@ use Symfony\Component\ObjectMapper\Attributes\Map;
 interface MapperMetadataFactoryInterface
 {
     /**
-     * @return Map[]
+     * @return Mapping[]
      */
     public function create(object $object, ?string $property = null, array $context = []): array;
 }
