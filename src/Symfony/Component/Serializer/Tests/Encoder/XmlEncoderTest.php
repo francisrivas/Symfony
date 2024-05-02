@@ -47,6 +47,9 @@ class XmlEncoderTest extends TestCase
         static::assertSame($expected, $this->encoder->encode($data, 'xml', $context));
     }
 
+    /**
+     * @return iterable<array{0: string, 1: mixed, 2?: array}>
+     */
     public static function validEncodeProvider(): iterable
     {
         $obj = new ScalarDummy();
@@ -409,8 +412,6 @@ XML;
         $data = $this->encoder->decode($source, 'xml');
         static::assertSame('018', $data['@a']);
     }
-
-
 
     public function testEncodeException()
     {
