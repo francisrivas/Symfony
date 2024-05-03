@@ -9,11 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Component\ObjectMapper;
+namespace Symfony\Component\ObjectMapper\Metadata;
 
 use Symfony\Component\ObjectMapper\Attributes\Map;
 use Symfony\Component\ObjectMapper\Exception\ReflectionException;
-use Symfony\Component\ObjectMapper\Metadata\Mapping;
 
 /**
  * @internal

@@ -13,8 +13,8 @@ namespace Symfony\Component\ObjectMapper\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\ObjectMapper\Exception\RuntimeException;
+use Symfony\Component\ObjectMapper\Metadata\ReflectionMapperMetadataFactory;
 use Symfony\Component\ObjectMapper\ObjectMapper;
-use Symfony\Component\ObjectMapper\ReflectionMapperMetadataFactory;
 use Symfony\Component\ObjectMapper\Tests\Fixtures\A;
 use Symfony\Component\ObjectMapper\Tests\Fixtures\B;
 use Symfony\Component\ObjectMapper\Tests\Fixtures\C;

@@ -14,7 +14,9 @@ namespace Symfony\Component\ObjectMapper;
 use Symfony\Component\ObjectMapper\Exception\MappingException;
 use Symfony\Component\ObjectMapper\Exception\MappingTransformException;
 use Symfony\Component\ObjectMapper\Exception\ReflectionException;
+use Symfony\Component\ObjectMapper\Metadata\MapperMetadataFactoryInterface;
 use Symfony\Component\ObjectMapper\Metadata\Mapping;
+use Symfony\Component\ObjectMapper\Metadata\ReflectionMapperMetadataFactory;
 use Symfony\Component\PropertyAccess\PropertyAccessorInterface;
 
 /**

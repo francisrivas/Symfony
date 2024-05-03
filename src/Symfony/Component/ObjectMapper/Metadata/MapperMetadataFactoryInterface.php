@@ -9,9 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Component\ObjectMapper;
-
-use Symfony\Component\ObjectMapper\Metadata\Mapping;
+namespace Symfony\Component\ObjectMapper\Metadata;
 
 /**
  * Factory to create Mapper metadata.

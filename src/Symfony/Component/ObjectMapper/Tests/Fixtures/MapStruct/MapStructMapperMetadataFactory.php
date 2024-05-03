@@ -12,7 +12,7 @@
 namespace Symfony\Component\ObjectMapper\Tests\Fixtures\MapStruct;
 
 use Symfony\Component\ObjectMapper\Attributes\Map;
-use Symfony\Component\ObjectMapper\MapperMetadataFactoryInterface;
+use Symfony\Component\ObjectMapper\Metadata\MapperMetadataFactoryInterface;
 use Symfony\Component\ObjectMapper\Metadata\Mapping;
 use Symfony\Component\ObjectMapper\ObjectMapperInterface;
 
