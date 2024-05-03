@@ -29,10 +29,10 @@ readonly class Mapping
      * @param CallableType|CallableType[]|null                              $transform A Symfony service name or a callable that transform the value during mapping
      */
     public function __construct(
-        public readonly ?string $target = null,
-        public readonly ?string $source = null,
-        public readonly mixed $if = null,
-        public readonly mixed $transform = null,
+        public ?string $target = null,
+        public ?string $source = null,
+        public mixed $if = null,
+        public mixed $transform = null,
     ) {
     }
 }

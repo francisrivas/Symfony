@@ -23,7 +23,7 @@ use Symfony\Component\ObjectMapper\Metadata\Mapping;
 interface MapperMetadataFactoryInterface
 {
     /**
-     * @return Mapping[]
+     * @return array<int, Mapping>
      */
     public function create(object $object, ?string $property = null, array $context = []): array;
 }

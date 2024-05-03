@@ -12,6 +12,7 @@
 namespace Symfony\Component\ObjectMapper;
 
 use Symfony\Component\ObjectMapper\Attributes\Map;
+use Symfony\Component\ObjectMapper\Exception\ReflectionException;
 use Symfony\Component\ObjectMapper\Metadata\Mapping;
 
 /**
@@ -23,13 +24,17 @@ final class ReflectionMapperMetadataFactory implements MapperMetadataFactoryInte
 {
     public function create(object $object, ?string $property = null, array $context = []): array
     {
-        $refl = new \ReflectionClass($object);
-        $mapTo = [];
-        foreach (($property ? $refl->getProperty($property) : $refl)->getAttributes(Map::class) as $mapAttribute) {
-            $map = $mapAttribute->newInstance();
-            $mapTo[] = new Mapping(source: $map->source, target: $map->target, if: $map->if, transform: $map->transform);
-        }
+        try {
+            $refl = new \ReflectionClass($object);
+            $mapTo = [];
+            foreach (($property ? $refl->getProperty($property) : $refl)->getAttributes(Map::class) as $mapAttribute) {
+                $map = $mapAttribute->newInstance();
+                $mapTo[] = new Mapping(source: $map->source, target: $map->target, if: $map->if, transform: $map->transform);
+            }
 
-        return $mapTo;
+            return $mapTo;
+        } catch (\ReflectionException $e) {
+            throw new ReflectionException($e->getMessage(), $e->getCode(), $e);
+        }
     }
 }

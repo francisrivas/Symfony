@@ -23,6 +23,9 @@ use Symfony\Component\ObjectMapper\Tests\Fixtures\DeeperRecursion\Recursive;
 use Symfony\Component\ObjectMapper\Tests\Fixtures\DeeperRecursion\RecursiveDto;
 use Symfony\Component\ObjectMapper\Tests\Fixtures\DeeperRecursion\Relation;
 use Symfony\Component\ObjectMapper\Tests\Fixtures\DeeperRecursion\RelationDto;
+use Symfony\Component\ObjectMapper\Tests\Fixtures\Flatten\TargetUser;
+use Symfony\Component\ObjectMapper\Tests\Fixtures\Flatten\User;
+use Symfony\Component\ObjectMapper\Tests\Fixtures\Flatten\UserProfile;
 use Symfony\Component\ObjectMapper\Tests\Fixtures\InstanceCallback\A as InstanceCallbackA;
 use Symfony\Component\ObjectMapper\Tests\Fixtures\InstanceCallback\B as InstanceCallbackB;
 use Symfony\Component\ObjectMapper\Tests\Fixtures\MapStruct\AToBMapper;
@@ -80,7 +83,7 @@ final class ObjectMapperTest extends TestCase
 
         yield [$d, [$a], [new ReflectionMapperMetadataFactory(), PropertyAccess::createPropertyAccessor()]];
 
-        yield [new MultipleTargetsC(), [new MultipleTargetsA()]];
+        yield [new MultipleTargetsC(foo: 'bar'), [new MultipleTargetsA()]];
     }
 
     public function testHasNothingToMapTo()
@@ -132,5 +135,15 @@ final class ObjectMapperTest extends TestCase
         $this->assertInstanceOf(Target::class, $b);
         $this->assertSame($b->propertyD, 'a');
         $this->assertSame($b->propertyC, 'c');
+    }
+
+    public function testMultipleMapProperty()
+    {
+        $u = new User(email: 'hello@example.com', profile: new UserProfile(firstName: 'soyuka', lastName: 'arakusa'));
+        $mapper = new ObjectMapper();
+        $b = $mapper->map($u);
+        $this->assertInstanceOf(TargetUser::class, $b);
+        $this->assertSame($b->firstName, 'soyuka');
+        $this->assertSame($b->lastName, 'arakusa');
     }
 }

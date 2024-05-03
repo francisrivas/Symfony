@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Component\ObjectMapper\Tests\Fixtures\MultipleTargets;
+namespace Symfony\Component\ObjectMapper\Tests\Fixtures\Flatten;
 
-class C
+class TargetUser
 {
-    public function __construct(public readonly string $foo)
-    {
-    }
+    public string $firstName;
+    public string $lastName;
+    public string $email;
 }

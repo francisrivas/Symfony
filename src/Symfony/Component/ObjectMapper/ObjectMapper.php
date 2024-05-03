@@ -57,7 +57,11 @@ final class ObjectMapper implements ObjectMapperInterface
         $target ??= $map?->target;
         $mappingToObject = \is_object($target);
 
-        if (!$target || (\is_string($target) && !class_exists($target))) {
+        if (!$target) {
+            throw new MappingException('Mapping target not found.');
+        }
+
+        if (\is_string($target) && !class_exists($target)) {
             throw new MappingException(sprintf('Mapping target "%s" not found.', $target));
         }
 
@@ -67,22 +71,21 @@ final class ObjectMapper implements ObjectMapperInterface
             throw new ReflectionException($e->getMessage(), $e->getCode(), $e);
         }
 
-        $mapped = $mappingToObject ? $target : $targetRefl->newInstanceWithoutConstructor();
+        $mappedTarget = $mappingToObject ? $target : $targetRefl->newInstanceWithoutConstructor();
         if ($map && $map->transform) {
-            $mapped = $this->applyTransforms($map, $mapped, $mapped);
+            $mappedTarget = $this->applyTransforms($map, $mappedTarget, $mappedTarget);
 
-            if (!\is_object($mapped)) {
+            if (!\is_object($mappedTarget)) {
                 throw new MappingTransformException('Can not map to a non-object.');
             }
         }
 
-        if (!is_a($mapped, $targetRefl->getName(), false)) {
-            throw new MappingException(sprintf('Expected the mapped object to be an instance of "%s".', $mappingToObject ? $target::class : $target));
+        if (!is_a($mappedTarget, $targetRefl->getName(), false)) {
+            throw new MappingException(sprintf('Expected the mapped object to be an instance of "%s".', $mappingToObject ? $mappedTarget::class : $mappedTarget));
         }
 
-        $objectMap[$source] = $mapped;
-
-        $arguments = [];
+        $objectMap[$source] = $mappedTarget;
+        $ctorArguments = [];
         $constructor = $targetRefl->getConstructor();
         foreach ($constructor?->getParameters() ?? [] as $parameter) {
             $parameterName = $parameter->getName();
@@ -93,81 +96,108 @@ final class ObjectMapper implements ObjectMapperInterface
             $property = $targetRefl->getProperty($parameterName);
 
             // The mapped class was probably instantiated in a transform we can't write a readonly property
-            if ($property->isReadOnly() && ($property->isInitialized($mapped) && $property->getValue($mapped))) {
+            if ($property->isReadOnly() && ($property->isInitialized($mappedTarget) && $property->getValue($mappedTarget))) {
                 continue;
             }
 
-            $arguments[$parameterName] = $parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue() : null;
+            $ctorArguments[$parameterName] = $parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue() : null;
         }
 
+        $mapToProperties = [];
         foreach ($refl->getProperties() as $property) {
             if ($property->isStatic()) {
                 continue;
             }
 
             $propertyName = $property->getName();
-            $map = null;
-            foreach ($this->metadataFactory->create($source, $propertyName) as $map) {
-                $if = $map->if;
+            $mappings = $this->metadataFactory->create($source, $propertyName);
+            foreach ($mappings as $mapping) {
+                $if = $mapping->if;
 
                 if (false === $if) {
-                    continue 2;
+                    continue;
                 }
 
                 if ($if && ($fn = $this->getCallable($if)) && !$this->call($fn, null, $source)) {
-                    continue 2;
+                    continue;
                 }
 
-                break;
-            }
-
-            $mapToProperty = $map?->target ?? $propertyName;
-            if (!$mapToProperty || !$targetRefl->hasProperty($mapToProperty)) {
-                continue;
-            }
-
-            $value = $this->propertyAccessor ? $this->propertyAccessor->getValue($source, $propertyName) : $source->{$propertyName};
-            if ($map && $map->transform) {
-                $value = $this->applyTransforms($map, $value, $source);
-            }
-
-            if (
-                \is_object($value)
-                && ($innerMetadata = $this->metadataFactory->create($value))
-                && ($mapTo = $this->getMapTarget($innerMetadata, $value, $source))
-                && (\is_string($mapTo->target) && class_exists($mapTo->target))
-            ) {
-                $value = $this->applyTransforms($mapTo, $value, $source);
-
-                if ($value === $source) {
-                    $value = $mapped;
-                } elseif ($objectMap->contains($value)) {
-                    $value = $objectMap[$value];
-                } else {
-                    $value = $this->map($value, $mapTo->target);
+                $targetPropertyName = $mapping->target ?? $propertyName;
+                if (!$targetRefl->hasProperty($targetPropertyName)) {
+                    continue;
                 }
+
+                $value = $this->getSourceValue($source, $mappedTarget, $propertyName, $objectMap, $mapping);
+                $this->storeValue($targetPropertyName, $mapToProperties, $ctorArguments, $value);
             }
 
-            if (\array_key_exists($mapToProperty, $arguments)) {
-                $arguments[$mapToProperty] = $value;
-            } else {
-                $this->propertyAccessor ? $this->propertyAccessor->setValue($mapped, $mapToProperty, $value) : ($mapped->{$mapToProperty} = $value);
+            if (!$mappings && $targetRefl->hasProperty($propertyName)) {
+                $value = $this->getSourceValue($source, $mappedTarget, $propertyName, $objectMap);
+                $this->storeValue($propertyName, $mapToProperties, $ctorArguments, $value);
             }
         }
 
-        if (!$mappingToObject && $arguments) {
+        if (!$mappingToObject && $ctorArguments) {
             try {
-                $constructor?->invokeArgs($mapped, $arguments);
+                $constructor?->invokeArgs($mappedTarget, $ctorArguments);
             } catch (\ReflectionException $e) {
                 throw new ReflectionException($e->getMessage(), $e->getCode(), $e);
             }
+        }
+
+        foreach ($mapToProperties as $property => $value) {
+            $this->propertyAccessor ? $this->propertyAccessor->setValue($mappedTarget, $property, $value) : ($mappedTarget->{$property} = $value);
         }
 
         if ($objectMapInitialized) {
             $objectMap = null;
         }
 
-        return $mapped;
+        return $mappedTarget;
+    }
+
+    private function getSourceValue(object $source, object $target, string $propertyName, \SplObjectStorage $objectMap, ?Mapping $mapping = null): mixed
+    {
+        $value = $this->propertyAccessor ? $this->propertyAccessor->getValue($source, $propertyName) : $source->{$propertyName};
+        if ($mapping?->transform) {
+            $value = $this->applyTransforms($mapping, $value, $source);
+        }
+
+        if (
+            \is_object($value)
+            && ($innerMetadata = $this->metadataFactory->create($value))
+            && ($mapTo = $this->getMapTarget($innerMetadata, $value, $source))
+            && (\is_string($mapTo->target) && class_exists($mapTo->target))
+        ) {
+            $value = $this->applyTransforms($mapTo, $value, $source);
+
+            if ($value === $source) {
+                $value = $target;
+            } elseif ($objectMap->contains($value)) {
+                $value = $objectMap[$value];
+            } else {
+                $value = $this->map($value, $mapTo->target);
+            }
+        }
+
+        return $value;
+    }
+
+    /**
+     * Store the value either the constructor arguments or as a property to be mapped.
+     *
+     * @param array<string, mixed> $mapToProperties
+     * @param array<string, mixed> $ctorArguments
+     */
+    private function storeValue(string $propertyName, array &$mapToProperties, array &$ctorArguments, mixed $value): void
+    {
+        if (\array_key_exists($propertyName, $ctorArguments)) {
+            $ctorArguments[$propertyName] = $value;
+
+            return;
+        }
+
+        $mapToProperties[$propertyName] = $value;
     }
 
     /**
