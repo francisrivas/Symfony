@@ -5,6 +5,7 @@ CHANGELOG
 ---
 
  * Add `ArgvInput::getRawTokens()`
+ * Add `AlarmableCommandInterface` and `console.alarm` event
 
 7.0
 ---
