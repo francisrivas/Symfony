@@ -101,7 +101,7 @@ class ObjectNormalizer extends AbstractObjectNormalizer
             if (
                 str_starts_with($name, 'get')
                 || str_starts_with($name, 'has')
-                || (str_starts_with($name, 'can') && $name != 'cancel')
+                || (str_starts_with($name, 'can') && 'cancel' != $name)
             ) {
                 // getters, hassers and canners
                 $attributeName = substr($name, 3);
@@ -189,7 +189,7 @@ class ObjectNormalizer extends AbstractObjectNormalizer
         if (!parent::isAllowedAttribute($classOrObject, $attribute, $format, $context)) {
             return false;
         }
-        $class = \is_object($classOrObject) ? \get_class($classOrObject) : $classOrObject;
+        $class = \is_object($classOrObject) ? $classOrObject::class : $classOrObject;
 
         if ($context['_read_attributes'] ?? true) {
             return $this->propertyInfoExtractor->isReadable($class, $attribute) || $this->hasAttributeAccessorMethod($class, $attribute);
