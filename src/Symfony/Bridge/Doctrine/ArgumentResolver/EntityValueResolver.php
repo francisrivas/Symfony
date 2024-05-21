@@ -31,11 +31,25 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 final class EntityValueResolver implements ValueResolverInterface
 {
+    /** @var array<class-string, class-string> */
+    private array $typeAliases = [];
+
     public function __construct(
         private ManagerRegistry $registry,
         private ?ExpressionLanguage $expressionLanguage = null,
         private MapEntity $defaults = new MapEntity(),
     ) {
+    }
+
+    /**
+     * Adds an original class name to resolve to a target class name.
+     *
+     * @param class-string $original
+     * @param class-string $target
+     */
+    public function addTypeAlias(string $original, string $target): void
+    {
+        $this->typeAliases[ltrim($original, '\\')] = ltrim($target, '\\');
     }
 
     public function resolve(Request $request, ArgumentMetadata $argument): array
@@ -50,6 +64,13 @@ final class EntityValueResolver implements ValueResolverInterface
         if (!$options->class || $options->disabled) {
             return [];
         }
+
+        if (isset($this->typeAliases[$options->class])) {
+            // Overwriting the property of MapEntity at this point is safe,
+            // since withDefaults called above created a clone of the original object.
+            $options->class = $this->typeAliases[$options->class];
+        }
+
         if (!$manager = $this->getManager($options->objectManager, $options->class)) {
             return [];
         }

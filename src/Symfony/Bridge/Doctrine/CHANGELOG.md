@@ -4,6 +4,7 @@ CHANGELOG
 7.1
 ---
 
+ * Add type aliases support to `EntityValueResolver` through the `addTypeAlias` method
  * Deprecate the `DoctrineExtractor::getTypes()` method, use `DoctrineExtractor::getType()` instead
  * Allow `EntityValueResolver` to return a list of entities
  * Add support for auto-closing idle connections
