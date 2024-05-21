@@ -189,7 +189,7 @@ class ObjectNormalizer extends AbstractObjectNormalizer
         if (!parent::isAllowedAttribute($classOrObject, $attribute, $format, $context)) {
             return false;
         }
-        $class = \is_object($classOrObject) ? $classOrObject::class : $classOrObject;
+        $class = \is_object($classOrObject) ? \get_class($classOrObject) : $classOrObject;
 
         if ($context['_read_attributes'] ?? true) {
             return $this->propertyInfoExtractor->isReadable($class, $attribute) || $this->hasAttributeAccessorMethod($class, $attribute);
