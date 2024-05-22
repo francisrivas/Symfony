@@ -893,15 +893,21 @@ class ObjectNormalizerTest extends TestCase
         $this->assertEquals($expected, $obj);
     }
 
-    public function testNormalizeWithCancelMethod()
+    public function testNormalizeWithMethodNamesSimilarToAccessors()
     {
         $classMetadataFactory = new ClassMetadataFactory(new AttributeLoader());
         $normalizer = new ObjectNormalizer($classMetadataFactory);
 
-        $object = new ObjectWithCancelMethod();
-        $normalizer->normalize($object);
+        $object = new ObjectWithAccessorishMethods();
+        $normalized = $normalizer->normalize($object);
 
-        $this->assertFalse($object->cancelCalled);
+        $this->assertFalse($object->isAccessorishCalled());
+        $this->assertEquals([
+            'responsibility' => true,
+            'class' => true,
+            'tell' => true,
+            'accessorishCalled' => false
+        ], $normalized);
     }
 }
 
@@ -1186,12 +1192,37 @@ class ObjectDummyWithIgnoreAttributeAndPrivateProperty
     private $private = 'private';
 }
 
-class ObjectWithCancelMethod
+class ObjectWithAccessorishMethods
 {
-    public $cancelCalled = false;
+    private $accessorishCalled = false;
+
+    public function isAccessorishCalled()
+    {
+        return $this->accessorishCalled;
+    }
 
     public function cancel()
     {
-        $this->cancelCalled = true;
+        $this->accessorishCalled = true;
+    }
+
+    public function hash()
+    {
+        $this->accessorishCalled = true;
+    }
+
+    public function canTell()
+    {
+        return true;
+    }
+
+    public function getClass()
+    {
+        return true;
+    }
+
+    public function hasResponsibility()
+    {
+        return true;
     }
 }
