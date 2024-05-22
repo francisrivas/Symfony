@@ -902,11 +902,11 @@ class ObjectNormalizerTest extends TestCase
         $normalized = $normalizer->normalize($object);
 
         $this->assertFalse($object->isAccessorishCalled());
-        $this->assertEquals([
-            'responsibility' => true,
-            'class' => true,
+        $this->assertSame([
+            'accessorishCalled' => false,
             'tell' => true,
-            'accessorishCalled' => false
+            'class' => true,
+            'responsibility' => true,
         ], $normalized);
     }
 }
