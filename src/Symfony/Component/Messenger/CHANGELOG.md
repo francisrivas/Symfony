@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+7.2
+---
+
+* Add `skip` option to `messenger:failed:retry` command to neither ack nor reject message
+
 7.1
 ---
 
