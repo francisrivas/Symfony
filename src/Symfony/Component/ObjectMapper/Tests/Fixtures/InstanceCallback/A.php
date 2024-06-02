@@ -11,7 +11,7 @@
 
 namespace Symfony\Component\ObjectMapper\Tests\Fixtures\InstanceCallback;
 
-use Symfony\Component\ObjectMapper\Attributes\Map;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[Map(transform: [B::class, 'newInstance'])]
 class A

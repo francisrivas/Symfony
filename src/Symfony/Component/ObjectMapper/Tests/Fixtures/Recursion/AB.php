@@ -11,7 +11,7 @@
 
 namespace Symfony\Component\ObjectMapper\Tests\Fixtures\Recursion;
 
-use Symfony\Component\ObjectMapper\Attributes\Map;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[Map(Dto::class)]
 class AB

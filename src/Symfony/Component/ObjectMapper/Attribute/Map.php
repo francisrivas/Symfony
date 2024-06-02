@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Component\ObjectMapper\Attributes;
+namespace Symfony\Component\ObjectMapper\Attribute;
 
 /**
  * Configures a class or a property to map to.

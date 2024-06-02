@@ -11,7 +11,7 @@
 
 namespace Symfony\Component\ObjectMapper\Tests\Fixtures\MapStruct;
 
-use Symfony\Component\ObjectMapper\Attributes\Map;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 use Symfony\Component\ObjectMapper\ObjectMapper;
 use Symfony\Component\ObjectMapper\ObjectMapperInterface;
 

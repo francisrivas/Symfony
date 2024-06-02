@@ -11,7 +11,7 @@
 
 namespace Symfony\Component\ObjectMapper\Metadata;
 
-use Symfony\Component\ObjectMapper\Attributes\Map;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 use Symfony\Component\ObjectMapper\Exception\ReflectionException;
 
 /**

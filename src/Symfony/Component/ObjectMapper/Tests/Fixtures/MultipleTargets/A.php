@@ -11,7 +11,7 @@
 
 namespace Symfony\Component\ObjectMapper\Tests\Fixtures\MultipleTargets;
 
-use Symfony\Component\ObjectMapper\Attributes\Map;
+use Symfony\Component\ObjectMapper\Attribute\Map;
 
 #[Map(target: B::class, if: [A::class, 'shouldMapToB'])]
 #[Map(target: C::class, if: [A::class, 'shouldMapToC'])]
