@@ -49,36 +49,44 @@ final class RegisterAutoconfigureAttributesPass implements CompilerPassInterface
 
     public function processClass(ContainerBuilder $container, \ReflectionClass $class)
     {
+        $combinedAttributesArgs = null;
         foreach ($class->getAttributes(Autoconfigure::class, \ReflectionAttribute::IS_INSTANCEOF) as $attribute) {
-            self::registerForAutoconfiguration($container, $class, $attribute);
+            $args = array_filter((array) $attribute->newInstance(), static function ($v): bool { return null !== $v; });
+
+            foreach ($args['tags'] ?? [] as $i => $tag) {
+                if (\is_array($tag) && [0] === array_keys($tag)) {
+                    $args['tags'][$i] = [$class->name => $tag[0]];
+                }
+            }
+
+            $args['tags'] = array_merge($args['tags'] ?? [], $combinedAttributesArgs['tags'] ?? []);
+            $args['calls'] = array_merge($args['calls'] ?? [], $combinedAttributesArgs['calls'] ?? []);
+
+            $combinedAttributesArgs = array_replace($combinedAttributesArgs ?? [], $args);
+        }
+
+        if (null !== $combinedAttributesArgs) {
+            self::registerForAutoconfiguration($container, $class, $combinedAttributesArgs);
         }
     }
 
-    private static function registerForAutoconfiguration(ContainerBuilder $container, \ReflectionClass $class, \ReflectionAttribute $attribute)
+    private static function registerForAutoconfiguration(ContainerBuilder $container, \ReflectionClass $class, array $combinedAttributesArgs)
     {
         if (self::$registerForAutoconfiguration) {
-            return (self::$registerForAutoconfiguration)($container, $class, $attribute);
+            return (self::$registerForAutoconfiguration)($container, $class, $combinedAttributesArgs);
         }
 
         $parseDefinitions = new \ReflectionMethod(YamlFileLoader::class, 'parseDefinitions');
         $parseDefinitions->setAccessible(true);
         $yamlLoader = $parseDefinitions->getDeclaringClass()->newInstanceWithoutConstructor();
 
-        self::$registerForAutoconfiguration = static function (ContainerBuilder $container, \ReflectionClass $class, \ReflectionAttribute $attribute) use ($parseDefinitions, $yamlLoader) {
-            $attribute = (array) $attribute->newInstance();
-
-            foreach ($attribute['tags'] ?? [] as $i => $tag) {
-                if (\is_array($tag) && [0] === array_keys($tag)) {
-                    $attribute['tags'][$i] = [$class->name => $tag[0]];
-                }
-            }
-
+        self::$registerForAutoconfiguration = static function (ContainerBuilder $container, \ReflectionClass $class, array $combinedAttributesArgs) use ($parseDefinitions, $yamlLoader) {
             $parseDefinitions->invoke(
                 $yamlLoader,
                 [
                     'services' => [
                         '_instanceof' => [
-                            $class->name => [$container->registerForAutoconfiguration($class->name)] + $attribute,
+                            $class->name => [$container->registerForAutoconfiguration($class->name)] + $combinedAttributesArgs,
                         ],
                     ],
                 ],
@@ -87,6 +95,6 @@ final class RegisterAutoconfigureAttributesPass implements CompilerPassInterface
             );
         };
 
-        return (self::$registerForAutoconfiguration)($container, $class, $attribute);
+        return (self::$registerForAutoconfiguration)($container, $class, $combinedAttributesArgs);
     }
 }
