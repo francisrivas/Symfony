@@ -70,8 +70,8 @@ The <info>%command.name%</info> retries message in the failure transport.
 
     <info>php %command.full_name%</info>
 
-The command will interactively ask if each message should be retried
-or discarded.
+The command will interactively ask if each message should be retried,
+discarded or skipped.
 
 Some transports support retrying a specific message id, which comes
 from the <info>messenger:failed:show</info> command.
