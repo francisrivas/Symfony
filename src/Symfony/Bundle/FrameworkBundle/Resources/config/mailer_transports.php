@@ -25,6 +25,7 @@ use Symfony\Component\Mailer\Bridge\Postmark\Transport\PostmarkTransportFactory;
 use Symfony\Component\Mailer\Bridge\Resend\Transport\ResendTransportFactory;
 use Symfony\Component\Mailer\Bridge\Scaleway\Transport\ScalewayTransportFactory;
 use Symfony\Component\Mailer\Bridge\Sendgrid\Transport\SendgridTransportFactory;
+use Symfony\Component\Mailer\Bridge\Sweego\Transport\SweegoTransportFactory;
 use Symfony\Component\Mailer\Transport\AbstractTransportFactory;
 use Symfony\Component\Mailer\Transport\NativeTransportFactory;
 use Symfony\Component\Mailer\Transport\NullTransportFactory;
@@ -61,6 +62,7 @@ return static function (ContainerConfigurator $container) {
         'sendgrid' => SendgridTransportFactory::class,
         'sendmail' => SendmailTransportFactory::class,
         'smtp' => EsmtpTransportFactory::class,
+        'sweego' => SweegoTransportFactory::class,
     ];
 
     foreach ($factories as $name => $class) {

@@ -2627,6 +2627,7 @@ class FrameworkExtension extends Extension
             MailerBridge\Scaleway\Transport\ScalewayTransportFactory::class => 'mailer.transport_factory.scaleway',
             MailerBridge\Sendgrid\Transport\SendgridTransportFactory::class => 'mailer.transport_factory.sendgrid',
             MailerBridge\Amazon\Transport\SesTransportFactory::class => 'mailer.transport_factory.amazon',
+            MailerBridge\Sweego\Transport\SweegoTransportFactory::class => 'mailer.transport_factory.sweego',
         ];
 
         foreach ($classToServices as $class => $service) {
