@@ -100,7 +100,10 @@ class ObjectNormalizer extends AbstractObjectNormalizer
             $name = $reflMethod->name;
             $attributeName = null;
 
-            if (str_starts_with($name, 'get') || str_starts_with($name, 'has') || str_starts_with($name, 'can')) {
+            if (
+                (str_starts_with($name, 'get') || str_starts_with($name, 'has') || str_starts_with($name, 'can'))
+                && ctype_upper($name[3] ?? '')
+            ) {
                 // getters, hassers and canners
                 $attributeName = substr($name, 3);
 

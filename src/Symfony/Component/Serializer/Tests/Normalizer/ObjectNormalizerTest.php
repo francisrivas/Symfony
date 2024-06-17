@@ -892,6 +892,23 @@ class ObjectNormalizerTest extends TestCase
 
         $this->assertEquals($expected, $obj);
     }
+
+    public function testNormalizeWithMethodNamesSimilarToAccessors()
+    {
+        $classMetadataFactory = new ClassMetadataFactory(new AttributeLoader());
+        $normalizer = new ObjectNormalizer($classMetadataFactory);
+
+        $object = new ObjectWithAccessorishMethods();
+        $normalized = $normalizer->normalize($object);
+
+        $this->assertFalse($object->isAccessorishCalled());
+        $this->assertSame([
+            'accessorishCalled' => false,
+            'tell' => true,
+            'class' => true,
+            'responsibility' => true,
+        ], $normalized);
+    }
 }
 
 class ProxyObjectDummy extends ObjectDummy
@@ -1173,4 +1190,39 @@ class ObjectDummyWithIgnoreAttributeAndPrivateProperty
     public $ignored = 'ignored';
 
     private $private = 'private';
+}
+
+class ObjectWithAccessorishMethods
+{
+    private $accessorishCalled = false;
+
+    public function isAccessorishCalled()
+    {
+        return $this->accessorishCalled;
+    }
+
+    public function cancel()
+    {
+        $this->accessorishCalled = true;
+    }
+
+    public function hash()
+    {
+        $this->accessorishCalled = true;
+    }
+
+    public function canTell()
+    {
+        return true;
+    }
+
+    public function getClass()
+    {
+        return true;
+    }
+
+    public function hasResponsibility()
+    {
+        return true;
+    }
 }
