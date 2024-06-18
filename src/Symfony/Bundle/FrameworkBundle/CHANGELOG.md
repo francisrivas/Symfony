@@ -6,6 +6,7 @@ CHANGELOG
 
  * Add support for setting `headers` with `Symfony\Bundle\FrameworkBundle\Controller\TemplateController`
  * Derivate `kernel.secret` from the decryption secret when its env var is not defined
+ * Add support for configuring multiple serializer instances via the configuration
 
 7.1
 ---

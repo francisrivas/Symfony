@@ -1900,6 +1900,7 @@ class FrameworkExtension extends Extension
         $container->getDefinition('serializer.mapping.cache_warmer')->replaceArgument(0, $serializerLoaders);
 
         if (isset($config['name_converter']) && $config['name_converter']) {
+            $container->setParameter('.serializer.name_converter', $config['name_converter']);
             $container->getDefinition('serializer.name_converter.metadata_aware')->setArgument(1, new Reference($config['name_converter']));
         }
 
@@ -1926,6 +1927,8 @@ class FrameworkExtension extends Extension
         }
 
         $container->getDefinition('serializer.normalizer.object')->setArgument(6, $context);
+
+        $container->setParameter('.serializer.named_serializers', $config['named_serializers'] ?? []);
     }
 
     private function registerPropertyInfoConfiguration(ContainerBuilder $container, PhpFileLoader $loader): void
