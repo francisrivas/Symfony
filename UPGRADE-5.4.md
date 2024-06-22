@@ -110,6 +110,7 @@ SecurityBundle
  * Deprecate passing an array of arrays as 1st argument to `MainConfiguration`, pass a sorted flat array of
    factories instead.
  * Deprecate the `always_authenticate_before_granting` option
+ * XML configured user providers and authenticators not coming from Symfony must now declare their own namespace
 
 Security
 --------

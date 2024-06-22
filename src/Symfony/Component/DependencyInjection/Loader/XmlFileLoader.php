@@ -777,6 +777,6 @@ EOF
      */
     public static function convertDomElementToArray(\DOMElement $element)
     {
-        return XmlUtils::convertDomElementToArray($element);
+        return XmlUtils::convertDomElementToArray($element, false);
     }
 }
