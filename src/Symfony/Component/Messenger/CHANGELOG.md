@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+7.2
+---
+
+* Add `skip` option to `messenger:failed:retry` command when run interactively to skip message and requeue it
+
 7.1
 ---
 
