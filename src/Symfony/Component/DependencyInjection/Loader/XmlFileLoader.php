@@ -404,7 +404,32 @@ class XmlFileLoader extends FileLoader
         try {
             $dom = XmlUtils::loadFile($file, [$this, 'validateSchema']);
         } catch (\InvalidArgumentException $e) {
-            throw new InvalidArgumentException(sprintf('Unable to parse file "%s": ', $file).$e->getMessage(), $e->getCode(), $e);
+            $invalidSecurityElements = [];
+            $errors = explode("\n", $e->getMessage());
+            foreach ($errors as $i => $error) {
+                if (preg_match("#^\[ERROR 1871] Element '\{http://symfony\.com/schema/dic/security}([^']+)'#", $error, $matches)) {
+                    $invalidSecurityElements[$i] = $matches[1];
+                }
+            }
+            if ($invalidSecurityElements) {
+                $dom = XmlUtils::loadFile($file);
+
+                foreach ($invalidSecurityElements as $errorIndex => $tagName) {
+                    foreach ($dom->getElementsByTagName($tagName) as $element) {
+                        if (!$parent = $element->parentElement) {
+                            continue;
+                        }
+                        if ('provider' === $parent->tagName || 'firewall' === $parent->tagName) {
+                            trigger_deprecation('symfony/security-bundle', '5.4.41', 'Third-party %s must now be namespaced; please update your security configuration "%s" tag.', 'provider' === $parent->tagName ? 'providers' : 'authenticators', $tagName);
+
+                            unset($errors[$errorIndex]);
+                        }
+                    }
+                }
+            }
+            if ($errors) {
+                throw new InvalidArgumentException(sprintf('Unable to parse file "%s": ', $file) . implode("/n", $errors), $e->getCode(), $e);
+            }
         }
 
         $this->validateExtensions($dom, $file);
