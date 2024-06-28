@@ -36,8 +36,10 @@ class ProgressIndicator
     private ?string $message = null;
     private array $indicatorValues;
     private int $indicatorCurrent;
+    private string $finishedIndicatorValue;
     private float $indicatorUpdateTime;
     private bool $started = false;
+    private bool $finished = false;
 
     /**
      * @var array<string, callable>
@@ -53,10 +55,12 @@ class ProgressIndicator
         ?string $format = null,
         private int $indicatorChangeInterval = 100,
         ?array $indicatorValues = null,
+        ?string $finishedIndicatorValue = null,
     ) {
         $format ??= $this->determineBestFormat();
         $indicatorValues ??= ['-', '\\', '|', '/'];
         $indicatorValues = array_values($indicatorValues);
+        $finishedIndicatorValue ??= '✔';
 
         if (2 > \count($indicatorValues)) {
             throw new InvalidArgumentException('Must have at least 2 indicator value characters.');
@@ -64,6 +68,7 @@ class ProgressIndicator
 
         $this->format = self::getFormatDefinition($format);
         $this->indicatorValues = $indicatorValues;
+        $this->finishedIndicatorValue = $finishedIndicatorValue;
         $this->startTime = time();
     }
 
@@ -88,6 +93,7 @@ class ProgressIndicator
 
         $this->message = $message;
         $this->started = true;
+        $this->finished = false;
         $this->startTime = time();
         $this->indicatorUpdateTime = $this->getCurrentTimeInMilliseconds() + $this->indicatorChangeInterval;
         $this->indicatorCurrent = 0;
@@ -123,12 +129,17 @@ class ProgressIndicator
     /**
      * Finish the indicator with message.
      */
-    public function finish(string $message): void
+    public function finish(string $message, ?string $finishedIndicator = null): void
     {
         if (!$this->started) {
             throw new LogicException('Progress indicator has not yet been started.');
         }
 
+        if ($finishedIndicator !== null) {
+            $this->finishedIndicatorValue = $finishedIndicator;
+        }
+
+        $this->finished = true;
         $this->message = $message;
         $this->display();
         $this->output->writeln('');
@@ -215,7 +226,7 @@ class ProgressIndicator
     private static function initPlaceholderFormatters(): array
     {
         return [
-            'indicator' => fn (self $indicator) => $indicator->indicatorValues[$indicator->indicatorCurrent % \count($indicator->indicatorValues)],
+            'indicator' => fn (self $indicator) => $indicator->finished ? $indicator->finishedIndicatorValue : $indicator->indicatorValues[$indicator->indicatorCurrent % \count($indicator->indicatorValues)],
             'message' => fn (self $indicator) => $indicator->message,
             'elapsed' => fn (self $indicator) => Helper::formatTime(time() - $indicator->startTime, 2),
             'memory' => fn () => Helper::formatMemory(memory_get_usage(true)),

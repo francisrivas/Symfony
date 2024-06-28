@@ -1,6 +1,8 @@
 CHANGELOG
 =========
 
+* Add a configurable finished indicator to the progress indicator to show that the progress is finished
+
 7.1
 ---
 
