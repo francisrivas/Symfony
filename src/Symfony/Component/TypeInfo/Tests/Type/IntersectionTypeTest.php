@@ -13,11 +13,8 @@ namespace Symfony\Component\TypeInfo\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\TypeInfo\Exception\InvalidArgumentException;
-use Symfony\Component\TypeInfo\Exception\LogicException;
 use Symfony\Component\TypeInfo\Type;
-use Symfony\Component\TypeInfo\Type\BuiltinType;
 use Symfony\Component\TypeInfo\Type\IntersectionType;
-use Symfony\Component\TypeInfo\TypeIdentifier;
 
 class IntersectionTypeTest extends TestCase
 {
@@ -39,29 +36,6 @@ class IntersectionTypeTest extends TestCase
         $this->assertEquals([Type::bool(), Type::int(), Type::string()], $type->getTypes());
     }
 
-    public function testAtLeastOneTypeIs()
-    {
-        $type = new IntersectionType(Type::int(), Type::string(), Type::bool());
-
-        $this->assertTrue($type->atLeastOneTypeIs(fn (Type $t) => 'int' === (string) $t));
-        $this->assertFalse($type->atLeastOneTypeIs(fn (Type $t) => 'float' === (string) $t));
-    }
-
-    public function testEveryTypeIs()
-    {
-        $type = new IntersectionType(Type::int(), Type::string(), Type::bool());
-        $this->assertTrue($type->everyTypeIs(fn (Type $t) => $t instanceof BuiltinType));
-
-        $type = new IntersectionType(Type::int(), Type::string(), Type::template('T'));
-        $this->assertFalse($type->everyTypeIs(fn (Type $t) => $t instanceof BuiltinType));
-    }
-
-    public function testGetBaseType()
-    {
-        $this->expectException(LogicException::class);
-        (new IntersectionType(Type::string(), Type::int()))->getBaseType();
-    }
-
     public function testToString()
     {
         $type = new IntersectionType(Type::int(), Type::string(), Type::float());
@@ -69,37 +43,5 @@ class IntersectionTypeTest extends TestCase
 
         $type = new IntersectionType(Type::int(), Type::string(), Type::union(Type::float(), Type::bool()));
         $this->assertSame('(bool|float)&int&string', (string) $type);
-    }
-
-    public function testIsNullable()
-    {
-        $this->assertFalse((new IntersectionType(Type::int(), Type::string(), Type::float()))->isNullable());
-        $this->assertTrue((new IntersectionType(Type::null(), Type::union(Type::int(), Type::mixed())))->isNullable());
-    }
-
-    public function testAsNonNullable()
-    {
-        $type = new IntersectionType(Type::int(), Type::string(), Type::float());
-
-        $this->assertSame($type, $type->asNonNullable());
-    }
-
-    public function testCannotTurnNullIntersectionAsNonNullable()
-    {
-        $this->expectException(LogicException::class);
-
-        $type = (new IntersectionType(Type::null(), Type::mixed()))->asNonNullable();
-    }
-
-    public function testIsA()
-    {
-        $type = new IntersectionType(Type::int(), Type::string(), Type::float());
-        $this->assertFalse($type->isA(TypeIdentifier::ARRAY));
-
-        $type = new IntersectionType(Type::int(), Type::string(), Type::union(Type::float(), Type::bool()));
-        $this->assertFalse($type->isA(TypeIdentifier::INT));
-
-        $type = new IntersectionType(Type::int(), Type::union(Type::int(), Type::int()));
-        $this->assertTrue($type->isA(TypeIdentifier::INT));
     }
 }

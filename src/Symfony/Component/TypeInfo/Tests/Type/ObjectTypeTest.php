@@ -13,30 +13,11 @@ namespace Symfony\Component\TypeInfo\Tests\Type;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\TypeInfo\Type\ObjectType;
-use Symfony\Component\TypeInfo\TypeIdentifier;
 
 class ObjectTypeTest extends TestCase
 {
     public function testToString()
     {
         $this->assertSame(self::class, (string) new ObjectType(self::class));
-    }
-
-    public function testIsNullable()
-    {
-        $this->assertFalse((new ObjectType(self::class))->isNullable());
-    }
-
-    public function testGetBaseType()
-    {
-        $this->assertEquals(new ObjectType(self::class), (new ObjectType(self::class))->getBaseType());
-    }
-
-    public function testIsA()
-    {
-        $this->assertFalse((new ObjectType(self::class))->isA(TypeIdentifier::ARRAY));
-        $this->assertTrue((new ObjectType(self::class))->isA(TypeIdentifier::OBJECT));
-        $this->assertTrue((new ObjectType(self::class))->isA(self::class));
-        $this->assertFalse((new ObjectType(self::class))->isA(\stdClass::class));
     }
 }

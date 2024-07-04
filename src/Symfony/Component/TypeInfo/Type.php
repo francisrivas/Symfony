@@ -11,9 +11,8 @@
 
 namespace Symfony\Component\TypeInfo;
 
-use Symfony\Component\TypeInfo\Exception\LogicException;
-use Symfony\Component\TypeInfo\Type\BuiltinType;
-use Symfony\Component\TypeInfo\Type\ObjectType;
+use Symfony\Component\TypeInfo\Type\CompositeTypeInterface;
+use Symfony\Component\TypeInfo\Type\WrappingTypeInterface;
 
 /**
  * @author Mathias Arlaud <mathias.arlaud@gmail.com>
@@ -25,35 +24,70 @@ abstract class Type implements \Stringable
 {
     use TypeFactoryTrait;
 
-    abstract public function getBaseType(): BuiltinType|ObjectType;
-
     /**
-     * @param TypeIdentifier|class-string $subject
+     * Traverses and yields the whole type inheritance graph.
+     *
+     * For example traversing "string|\Traversable<int>" will yield
+     * - string
+     * - int
+     * - \Traversable<int>
+     * - string|\Traversable<int>
+     *
+     * @return iterable<self>
      */
-    abstract public function isA(TypeIdentifier|string $subject): bool;
-
-    abstract public function asNonNullable(): self;
-
-    /**
-     * @param callable(Type): bool $callable
-     */
-    public function is(callable $callable): bool
+    public function traverse(): iterable
     {
-        return $callable($this);
+        if ($this instanceof CompositeTypeInterface) {
+            foreach ($this->getTypes() as $type) {
+                yield from $type->traverse();
+            }
+        }
+
+        if ($this instanceof WrappingTypeInterface) {
+            yield from $this->getWrappedType()->traverse();
+        }
+
+        yield $this;
     }
 
+    /**
+     * Tells if the type or one of its component (@see traverse()) is what is expected.
+     *
+     * @param TypeIdentifier|class-string $expected
+     */
+    public function isA(TypeIdentifier|string $expected): bool
+    {
+        foreach ($this->traverse() as $type) {
+            if ($type !== $this && $type->isA($expected)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Tells if the type or one of its component (@see traverse()) is nullable.
+     *
+     * @param TypeIdentifier|class-string $expected
+     */
     public function isNullable(): bool
     {
-        return $this->is(fn (Type $t): bool => $t->isA(TypeIdentifier::NULL) || $t->isA(TypeIdentifier::MIXED));
+        return $this->isA(TypeIdentifier::NULL) || $this->isA(TypeIdentifier::MIXED);
     }
 
     /**
-     * Graceful fallback for unexisting methods.
+     * Tells if the type or one of its component (@see traverse()) is a scalar.
      *
-     * @param list<mixed> $arguments
+     * @param TypeIdentifier|class-string $expected
      */
-    public function __call(string $method, array $arguments): mixed
+    public function isScalar(): bool
     {
-        throw new LogicException(\sprintf('Cannot call "%s" on "%s" type.', $method, $this));
+        return $this->isA(TypeIdentifier::INT)
+            || $this->isA(TypeIdentifier::FLOAT)
+            || $this->isA(TypeIdentifier::STRING)
+            || $this->isA(TypeIdentifier::BOOL)
+            || $this->isA(TypeIdentifier::TRUE)
+            || $this->isA(TypeIdentifier::FALSE);
     }
 }

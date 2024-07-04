@@ -32,23 +32,9 @@ class ObjectType extends Type
     ) {
     }
 
-    public function getBaseType(): BuiltinType|self
-    {
-        return $this;
-    }
-
     public function getTypeIdentifier(): TypeIdentifier
     {
         return TypeIdentifier::OBJECT;
-    }
-
-    public function isA(TypeIdentifier|string $subject): bool
-    {
-        if ($subject instanceof TypeIdentifier) {
-            return $this->getTypeIdentifier() === $subject;
-        }
-
-        return is_a($this->getClassName(), $subject, allow_string: true);
     }
 
     /**
@@ -59,9 +45,13 @@ class ObjectType extends Type
         return $this->className;
     }
 
-    public function asNonNullable(): static
+    public function isA(TypeIdentifier|string $expected): bool
     {
-        return $this;
+        if ($expected instanceof TypeIdentifier) {
+            return $expected === TypeIdentifier::OBJECT;
+        }
+
+        return is_a($this->className, $expected, allow_string: true);
     }
 
     public function __toString(): string

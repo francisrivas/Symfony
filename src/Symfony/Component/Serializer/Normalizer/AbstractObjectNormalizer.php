@@ -32,13 +32,16 @@ use Symfony\Component\Serializer\Mapping\ClassDiscriminatorResolverInterface;
 use Symfony\Component\Serializer\Mapping\ClassMetadataInterface;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface;
 use Symfony\Component\Serializer\NameConverter\NameConverterInterface;
-use Symfony\Component\TypeInfo\Exception\LogicException as TypeInfoLogicException;
 use Symfony\Component\TypeInfo\Type;
+use Symfony\Component\TypeInfo\Type\BuiltinType;
 use Symfony\Component\TypeInfo\Type\CollectionType;
+use Symfony\Component\TypeInfo\Type\GenericType;
 use Symfony\Component\TypeInfo\Type\IntersectionType;
+use Symfony\Component\TypeInfo\Type\NullableType;
 use Symfony\Component\TypeInfo\Type\ObjectType;
 use Symfony\Component\TypeInfo\Type\UnionType;
 use Symfony\Component\TypeInfo\TypeIdentifier;
+use Symfony\Component\TypeInfo\Type\WrappingTypeInterface;
 
 /**
  * Base class for a normalizer dealing with objects.
@@ -644,11 +647,9 @@ abstract class AbstractObjectNormalizer extends AbstractNormalizer
     private function validateAndDenormalize(Type $type, string $currentClass, string $attribute, mixed $data, ?string $format, array $context): mixed
     {
         $expectedTypes = [];
-        $isUnionType = $type->asNonNullable() instanceof UnionType;
         $e = null;
         $extraAttributesException = null;
         $missingConstructorArgumentsException = null;
-        $isNullable = false;
 
         $types = match (true) {
             $type instanceof IntersectionType => throw new LogicException('Unable to handle intersection type.'),
@@ -667,7 +668,9 @@ abstract class AbstractObjectNormalizer extends AbstractNormalizer
                 $collectionValueType = $t->getCollectionValueType();
             }
 
-            $t = $t->getBaseType();
+            while ($t instanceof WrappingTypeInterface) {
+                $t = $t->getWrappedType();
+            }
 
             // Fix a collection that contains the only one element
             // This is special to xml format only
@@ -694,8 +697,6 @@ abstract class AbstractObjectNormalizer extends AbstractNormalizer
                         if (TypeIdentifier::STRING === $typeIdentifier) {
                             return '';
                         }
-
-                        $isNullable = $isNullable ?: $type->isNullable();
                     }
 
                     switch ($typeIdentifier) {
@@ -731,10 +732,9 @@ abstract class AbstractObjectNormalizer extends AbstractNormalizer
                 }
 
                 if ($collectionValueType) {
-                    try {
-                        $collectionValueBaseType = $collectionValueType->getBaseType();
-                    } catch (TypeInfoLogicException) {
-                        $collectionValueBaseType = Type::mixed();
+                    $collectionValueBaseType = $collectionValueType;
+                    while ($collectionValueBaseType instanceof WrappingTypeInterface) {
+                        $collectionValueBaseType = $collectionValueBaseType->getWrappedType();
                     }
 
                     if ($collectionValueBaseType instanceof ObjectType) {
@@ -742,15 +742,25 @@ abstract class AbstractObjectNormalizer extends AbstractNormalizer
                         $class = $collectionValueBaseType->getClassName().'[]';
                         $context['key_type'] = $collectionKeyType;
                         $context['value_type'] = $collectionValueType;
-                    } elseif (TypeIdentifier::ARRAY === $collectionValueBaseType->getTypeIdentifier()) {
+                    } elseif ($collectionValueBaseType instanceof BuiltinType && TypeIdentifier::ARRAY === $collectionValueBaseType->getTypeIdentifier()) {
                         // get inner type for any nested array
                         $innerType = $collectionValueType;
+                        if ($innerType instanceof NullableType) {
+                            $innerType = $innerType->getWrappedType();
+                        }
 
                         // note that it will break for any other builtinType
                         $dimensions = '[]';
                         while ($innerType instanceof CollectionType) {
                             $dimensions .= '[]';
                             $innerType = $innerType->getCollectionValueType();
+                            if ($innerType instanceof NullableType) {
+                                $innerType = $innerType->getWrappedType();
+                            }
+                        }
+
+                        while ($innerType instanceof WrappingTypeInterface) {
+                            $innerType = $innerType->getWrappedType();
                         }
 
                         if ($innerType instanceof ObjectType) {
@@ -826,17 +836,17 @@ abstract class AbstractObjectNormalizer extends AbstractNormalizer
                     return $data;
                 }
             } catch (NotNormalizableValueException|InvalidArgumentException $e) {
-                if (!$isUnionType && !$isNullable) {
+                if (!$type instanceof UnionType) {
                     throw $e;
                 }
             } catch (ExtraAttributesException $e) {
-                if (!$isUnionType && !$isNullable) {
+                if (!$type instanceof UnionType) {
                     throw $e;
                 }
 
                 $extraAttributesException ??= $e;
             } catch (MissingConstructorArgumentsException $e) {
-                if (!$isUnionType && !$isNullable) {
+                if (!$type instanceof UnionType) {
                     throw $e;
                 }
 
@@ -856,7 +866,7 @@ abstract class AbstractObjectNormalizer extends AbstractNormalizer
             throw $missingConstructorArgumentsException;
         }
 
-        if (!$isUnionType && $e) {
+        if ($e && !($type instanceof UnionType && !$type instanceof NullableType)) {
             throw $e;
         }
 

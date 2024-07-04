@@ -73,45 +73,4 @@ class CollectionTypeTest extends TestCase
         $type = new CollectionType(new GenericType(Type::builtin(TypeIdentifier::ARRAY), Type::string(), Type::bool()));
         $this->assertEquals('array<string,bool>', (string) $type);
     }
-
-    public function testGetBaseType()
-    {
-        $this->assertEquals(Type::int(), Type::collection(Type::generic(Type::int(), Type::string()))->getBaseType());
-    }
-
-    public function testIsNullable()
-    {
-        $this->assertFalse((new CollectionType(Type::generic(Type::builtin(TypeIdentifier::ARRAY), Type::int())))->isNullable());
-        $this->assertTrue((new CollectionType(Type::generic(Type::null(), Type::int())))->isNullable());
-        $this->assertTrue((new CollectionType(Type::generic(Type::mixed(), Type::int())))->isNullable());
-    }
-
-    public function testAsNonNullable()
-    {
-        $type = new CollectionType(Type::builtin(TypeIdentifier::ITERABLE));
-
-        $this->assertSame($type, $type->asNonNullable());
-    }
-
-    public function testIsA()
-    {
-        $type = new CollectionType(new GenericType(Type::builtin(TypeIdentifier::ARRAY), Type::string(), Type::bool()));
-
-        $this->assertTrue($type->isA(TypeIdentifier::ARRAY));
-        $this->assertFalse($type->isA(TypeIdentifier::STRING));
-        $this->assertFalse($type->isA(TypeIdentifier::INT));
-        $this->assertFalse($type->isA(self::class));
-
-        $type = new CollectionType(new GenericType(Type::object(self::class), Type::string(), Type::bool()));
-
-        $this->assertFalse($type->isA(TypeIdentifier::ARRAY));
-        $this->assertTrue($type->isA(TypeIdentifier::OBJECT));
-        $this->assertTrue($type->isA(self::class));
-    }
-
-    public function testProxiesMethodsToBaseType()
-    {
-        $type = new CollectionType(Type::generic(Type::builtin(TypeIdentifier::ARRAY), Type::string(), Type::bool()));
-        $this->assertEquals([Type::string(), Type::bool()], $type->getVariableTypes());
-    }
 }
