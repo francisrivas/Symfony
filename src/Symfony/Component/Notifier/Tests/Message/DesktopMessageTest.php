@@ -22,7 +22,7 @@ use Symfony\Component\Notifier\Notification\Notification;
  */
 class DesktopMessageTest extends TestCase
 {
-    public function testCanBeConstructed(): void
+    public function testCanBeConstructed()
     {
         $message = new DesktopMessage('Hello', 'World');
 
@@ -30,7 +30,7 @@ class DesktopMessageTest extends TestCase
         $this->assertSame('World', $message->getContent());
     }
 
-    public function testSetSubject(): void
+    public function testSetSubject()
     {
         $message = new DesktopMessage('Hello', 'World');
 
@@ -39,7 +39,7 @@ class DesktopMessageTest extends TestCase
         $this->assertSame('dlrow olleH', $message->getSubject());
     }
 
-    public function testSetContent(): void
+    public function testSetContent()
     {
         $message = new DesktopMessage('Hello', 'World');
 
@@ -48,7 +48,7 @@ class DesktopMessageTest extends TestCase
         $this->assertSame('dlrow olleH', $message->getContent());
     }
 
-    public function testSetTransport(): void
+    public function testSetTransport()
     {
         $message = new DesktopMessage('Hello', 'World');
 
@@ -57,7 +57,7 @@ class DesktopMessageTest extends TestCase
         $this->assertSame('next_one', $message->getTransport());
     }
 
-    public function testCreateFromNotification(): void
+    public function testCreateFromNotification()
     {
         $notification = (new Notification('Hello'))->content('World');
         $message = DesktopMessage::fromNotification($notification);

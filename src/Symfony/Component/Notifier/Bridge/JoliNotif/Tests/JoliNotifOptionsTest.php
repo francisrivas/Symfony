@@ -22,7 +22,7 @@ use Symfony\Component\Notifier\Exception\InvalidArgumentException;
  */
 class JoliNotifOptionsTest extends TestCase
 {
-    public function testToArray(): void
+    public function testToArray()
     {
         $joliOptions = new JoliNotifOptions();
 
@@ -39,7 +39,7 @@ class JoliNotifOptionsTest extends TestCase
         ], $joliOptions->toArray());
     }
 
-    public function testNonExistExtraOption(): void
+    public function testNonExistExtraOption()
     {
         $joliOptions = new JoliNotifOptions();
 
