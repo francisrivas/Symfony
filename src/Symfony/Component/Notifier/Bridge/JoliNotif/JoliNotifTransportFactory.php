@@ -9,8 +9,6 @@
  * file that was distributed with this source code.
  */
 
-declare(strict_types=1);
-
 namespace Symfony\Component\Notifier\Bridge\JoliNotif;
 
 use Joli\JoliNotif\DefaultNotifier as JoliNotifier;
