@@ -4,7 +4,7 @@ CHANGELOG
 7.2
 ---
 
-* Add `Desktop` channel
+ * Add `Desktop` channel
 
 6.3
 ---
