@@ -2,9 +2,7 @@ JoliNotif Notifier Bridge
 =============
 
 Provides a [JoliNotif](https://github.com/jolicode/JoliNotif) integration for
-the
-Symfony
-Notifier Component.
+the Symfony Notifier Component.
 
 Resources
 ---------
