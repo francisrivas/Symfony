@@ -114,7 +114,7 @@ class UnsupportedSchemeException extends LogicException
         ],
         'jolinotif' => [
             'class' => Bridge\JoliNotif\JoliNotifTransportFactory::class,
-            'package' => 'symfony/jolinotif-notifier',
+            'package' => 'symfony/joli-notif-notifier',
         ],
         'kaz-info-teh' => [
             'class' => Bridge\KazInfoTeh\KazInfoTehTransportFactory::class,

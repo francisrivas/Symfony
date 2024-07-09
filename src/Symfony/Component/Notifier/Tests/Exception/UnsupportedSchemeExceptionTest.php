@@ -142,7 +142,7 @@ final class UnsupportedSchemeExceptionTest extends TestCase
         yield ['infobip', 'symfony/infobip-notifier'];
         yield ['iqsms', 'symfony/iqsms-notifier'];
         yield ['isendpro', 'symfony/isendpro-notifier'];
-        yield ['jolinotif', 'symfony/jolinotif-notifier'];
+        yield ['jolinotif', 'symfony/joli-notif-notifier'];
         yield ['lightsms', 'symfony/light-sms-notifier'];
         yield ['linenotify', 'symfony/line-notify-notifier'];
         yield ['linkedin', 'symfony/linked-in-notifier'];

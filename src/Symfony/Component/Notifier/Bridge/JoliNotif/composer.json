@@ -1,9 +1,9 @@
 {
-  "name": "symfony/jolinotif-notifier",
+  "name": "symfony/joli-notif-notifier",
   "type": "symfony-notifier-bridge",
   "description": "Symfony JoliNotif Notifier Bridge",
   "keywords": [
-    "jolinotif",
+    "joli-notif",
     "desktop-notifications",
     "notifier"
   ],

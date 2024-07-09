@@ -2785,7 +2785,7 @@ class FrameworkExtension extends Extension
             NotifierBridge\Infobip\InfobipTransportFactory::class => 'notifier.transport_factory.infobip',
             NotifierBridge\Iqsms\IqsmsTransportFactory::class => 'notifier.transport_factory.iqsms',
             NotifierBridge\Isendpro\IsendproTransportFactory::class => 'notifier.transport_factory.isendpro',
-            NotifierBridge\JoliNotif\JoliNotifTransportFactory::class => 'notifier.transport_factory.jolinotif',
+            NotifierBridge\JoliNotif\JoliNotifTransportFactory::class => 'notifier.transport_factory.joli-notif',
             NotifierBridge\KazInfoTeh\KazInfoTehTransportFactory::class => 'notifier.transport_factory.kaz-info-teh',
             NotifierBridge\LightSms\LightSmsTransportFactory::class => 'notifier.transport_factory.light-sms',
             NotifierBridge\LineNotify\LineNotifyTransportFactory::class => 'notifier.transport_factory.line-notify',

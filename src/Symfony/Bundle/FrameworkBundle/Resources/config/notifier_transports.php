@@ -72,7 +72,7 @@ return static function (ContainerConfigurator $container) {
         'infobip' => Bridge\Infobip\InfobipTransportFactory::class,
         'iqsms' => Bridge\Iqsms\IqsmsTransportFactory::class,
         'isendpro' => Bridge\Isendpro\IsendproTransportFactory::class,
-        'jolinotif' => Bridge\JoliNotif\JoliNotifTransportFactory::class,
+        'joli-notif' => Bridge\JoliNotif\JoliNotifTransportFactory::class,
         'kaz-info-teh' => Bridge\KazInfoTeh\KazInfoTehTransportFactory::class,
         'light-sms' => Bridge\LightSms\LightSmsTransportFactory::class,
         'lox24' => Bridge\Lox24\Lox24TransportFactory::class,
