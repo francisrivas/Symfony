@@ -36,7 +36,7 @@ final class JoliNotifOptions implements MessageOptionsInterface
     /**
      * @return $this
      */
-    public function setIconPath(string $iconPath): self
+    public function setIconPath(string $iconPath): static
     {
         $this->options['icon_path'] = $iconPath;
 
@@ -55,7 +55,7 @@ final class JoliNotifOptions implements MessageOptionsInterface
      *
      * @return $this
      */
-    public function setExtraOption(string $key, string|int $value): self
+    public function setExtraOption(string $key, string|int $value): static
     {
         $this->options['extraOptions'][$key] = $value;
 

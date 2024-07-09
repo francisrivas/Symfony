@@ -57,7 +57,7 @@ class DesktopMessage implements MessageInterface, FromNotificationInterface
     /**
      * @return $this
      */
-    public function setSubject(string $subject): self
+    public function setSubject(string $subject): static
     {
         $this->subject = $subject;
 
@@ -67,7 +67,7 @@ class DesktopMessage implements MessageInterface, FromNotificationInterface
     /**
      * @return $this
      */
-    public function setContent(string $content): self
+    public function setContent(string $content): static
     {
         $this->content = $content;
 
@@ -77,7 +77,7 @@ class DesktopMessage implements MessageInterface, FromNotificationInterface
     /**
      * @return $this
      */
-    public function setOptions(MessageOptionsInterface $options): self
+    public function setOptions(MessageOptionsInterface $options): static
     {
         $this->options = $options;
 
@@ -97,7 +97,7 @@ class DesktopMessage implements MessageInterface, FromNotificationInterface
     /**
      * @return $this
      */
-    public function setTransport(string $transport): self
+    public function setTransport(string $transport): static
     {
         $this->transport = $transport;
 
@@ -112,7 +112,7 @@ class DesktopMessage implements MessageInterface, FromNotificationInterface
     /**
      * @return $this
      */
-    public function setNotification(Notification $notification): self
+    public function setNotification(Notification $notification): static
     {
         $this->notification = $notification;
 
