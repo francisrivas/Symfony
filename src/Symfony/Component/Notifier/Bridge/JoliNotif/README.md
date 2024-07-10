@@ -1,5 +1,5 @@
 JoliNotif Notifier Bridge
-=============
+=========================
 
 Provides a [JoliNotif](https://github.com/jolicode/JoliNotif) integration for
 the Symfony Notifier Component.
