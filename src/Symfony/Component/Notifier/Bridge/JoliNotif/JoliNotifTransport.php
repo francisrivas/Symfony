@@ -65,10 +65,8 @@ final class JoliNotifTransport extends AbstractTransport
         return new SentMessage($message, (string) $this);
     }
 
-    private function buildJoliNotificationObject(
-        DesktopMessage $message,
-        ?JoliNotifOptions $options = null,
-    ): JoliNotification {
+    private function buildJoliNotificationObject(DesktopMessage $message, ?JoliNotifOptions $options = null): JoliNotification
+    {
         $joliNotification = new JoliNotification();
 
         $joliNotification->setTitle($message->getSubject());
