@@ -63,7 +63,7 @@ final class JoliNotifOptions implements MessageOptionsInterface
     public function getExtraOption(string $key): string|int
     {
         if (!isset($this->options['extraOptions'][$key])) {
-            throw new InvalidArgumentException(\sprintf('The extra option (%s) cannot be fetched as it does not exist', $key));
+            throw new InvalidArgumentException(\sprintf('The extra option "%s" cannot be fetched as it does not exist.', $key));
         }
 
         return $this->options['extraOptions'][$key];
