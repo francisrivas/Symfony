@@ -41,9 +41,7 @@ final class JoliNotifTransport extends AbstractTransport
 
     public function supports(MessageInterface $message): bool
     {
-        return $message instanceof DesktopMessage && (
-            null === $message->getOptions() || $message->getOptions() instanceof JoliNotifOptions
-        );
+        return $message instanceof DesktopMessage && (null === $message->getOptions() || $message->getOptions() instanceof JoliNotifOptions);
     }
 
     protected function doSend(MessageInterface $message): SentMessage
