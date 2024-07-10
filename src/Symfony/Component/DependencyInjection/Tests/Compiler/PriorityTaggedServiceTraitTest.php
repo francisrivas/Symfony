@@ -233,11 +233,13 @@ class PriorityTaggedServiceTraitTest extends TestCase
         $container->setParameter('custom_param_service1', 'bar');
         $container->setParameter('custom_param_service2', 'baz');
         $container->setParameter('custom_param_service2_empty', '');
+        $container->setParameter('custom_param_service2_null', null);
         $container->register('service1')->addTag('my_custom_tag', ['foo' => '%custom_param_service1%']);
 
         $definition = $container->register('service2', BarTagClass::class);
         $definition->addTag('my_custom_tag', ['foo' => '%custom_param_service2%', 'priority' => 100]);
         $definition->addTag('my_custom_tag', ['foo' => '%custom_param_service2_empty%']);
+        $definition->addTag('my_custom_tag', ['foo' => '%custom_param_service2_null%']);
 
         $priorityTaggedServiceTraitImplementation = new PriorityTaggedServiceTraitImplementation();
 
@@ -245,6 +247,7 @@ class PriorityTaggedServiceTraitTest extends TestCase
         $expected = [
             'baz' => new TypedReference('service2', BarTagClass::class),
             'bar' => new Reference('service1'),
+            '' => new TypedReference('service2', BarTagClass::class),
             'bar_tab_class_with_defaultmethod' => new TypedReference('service2', BarTagClass::class),
         ];
         $services = $priorityTaggedServiceTraitImplementation->test($tag, $container);
