@@ -15,7 +15,7 @@ use Symfony\Component\Workflow\TransitionBlockerList;
 use Symfony\Component\Workflow\WorkflowInterface;
 
 /**
- * Thrown by Workflow when a not enabled transition is applable on a subject.
+ * Thrown by Workflow when a not enabled transition is appliable on a subject.
  *
  * @author Grégoire Pineau <lyrixx@lyrixx.info>
  */
