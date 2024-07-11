@@ -31,7 +31,7 @@ final class JoliNotifTransport extends AbstractTransport
         private readonly JoliNotifier $joliNotifier,
         ?EventDispatcherInterface $dispatcher = null,
     ) {
-        parent::__construct(dispatcher: $dispatcher);
+        parent::__construct(null, $dispatcher);
     }
 
     public function __toString(): string
