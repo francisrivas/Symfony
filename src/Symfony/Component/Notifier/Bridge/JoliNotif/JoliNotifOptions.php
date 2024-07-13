@@ -21,6 +21,11 @@ final class JoliNotifOptions implements MessageOptionsInterface
 {
     private array $options = [];
 
+    public function __construct(?string $iconPath = null, array $extraOptions = [])
+    {
+        $this->options = ['icon_path' => $iconPath, 'extra_options' => $extraOptions];
+    }
+
     public function toArray(): array
     {
         return $this->options;
@@ -55,22 +60,22 @@ final class JoliNotifOptions implements MessageOptionsInterface
      */
     public function setExtraOption(string $key, string|int $value): static
     {
-        $this->options['extraOptions'][$key] = $value;
+        $this->options['extra_options'][$key] = $value;
 
         return $this;
     }
 
     public function getExtraOption(string $key): string|int
     {
-        if (!isset($this->options['extraOptions'][$key])) {
+        if (!isset($this->options['extra_options'][$key])) {
             throw new InvalidArgumentException(\sprintf('The extra option "%s" cannot be fetched as it does not exist.', $key));
         }
 
-        return $this->options['extraOptions'][$key];
+        return $this->options['extra_options'][$key];
     }
 
     public function getExtraOptions(): array
     {
-        return $this->options['extraOptions'] ?? [];
+        return $this->options['extra_options'] ?? [];
     }
 }

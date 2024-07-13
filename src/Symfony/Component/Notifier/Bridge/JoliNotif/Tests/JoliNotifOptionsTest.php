@@ -30,7 +30,7 @@ class JoliNotifOptionsTest extends TestCase
 
         $this->assertSame([
             'icon_path' => '/sample/icon/path',
-            'extraOptions' => [
+            'extra_options' => [
                 'subtitle' => 'This is a subtitle',
                 'sound' => 'Frog',
             ],
