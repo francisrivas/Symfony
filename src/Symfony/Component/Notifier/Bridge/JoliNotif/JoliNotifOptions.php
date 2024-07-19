@@ -19,16 +19,16 @@ use Symfony\Component\Notifier\Message\MessageOptionsInterface;
  */
 final class JoliNotifOptions implements MessageOptionsInterface
 {
-    private array $options = [];
-
-    public function __construct(?string $iconPath = null, array $extraOptions = [])
+    public function __construct(private ?string $iconPath = null, private array $extraOptions = [])
     {
-        $this->options = ['icon_path' => $iconPath, 'extra_options' => $extraOptions];
     }
 
     public function toArray(): array
     {
-        return $this->options;
+        return [
+            'icon_path' => $this->iconPath,
+            'extra_options' => $this->extraOptions,
+        ];
     }
 
     public function getRecipientId(): ?string
@@ -41,14 +41,14 @@ final class JoliNotifOptions implements MessageOptionsInterface
      */
     public function setIconPath(string $iconPath): static
     {
-        $this->options['icon_path'] = $iconPath;
+        $this->iconPath = $iconPath;
 
         return $this;
     }
 
     public function getIconPath(): ?string
     {
-        return $this->options['icon_path'] ?? null;
+        return $this->iconPath;
     }
 
     /**
@@ -60,22 +60,22 @@ final class JoliNotifOptions implements MessageOptionsInterface
      */
     public function setExtraOption(string $key, string|int $value): static
     {
-        $this->options['extra_options'][$key] = $value;
+        $this->extraOptions[$key] = $value;
 
         return $this;
     }
 
     public function getExtraOption(string $key): string|int
     {
-        if (!isset($this->options['extra_options'][$key])) {
+        if (!isset($this->extraOptions[$key])) {
             throw new InvalidArgumentException(\sprintf('The extra option "%s" cannot be fetched as it does not exist.', $key));
         }
 
-        return $this->options['extra_options'][$key];
+        return $this->extraOptions[$key];
     }
 
     public function getExtraOptions(): array
     {
-        return $this->options['extra_options'] ?? [];
+        return $this->extraOptions;
     }
 }

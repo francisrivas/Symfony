@@ -29,8 +29,7 @@ final class JoliNotifTransportFactory extends AbstractTransportFactory
             throw new UnsupportedSchemeException($dsn, self::SCHEME_NAME, $this->getSupportedSchemes());
         }
 
-        return (new JoliNotifTransport(new JoliNotifier(), $this->dispatcher))
-            ->setHost($dsn->getHost());
+        return (new JoliNotifTransport(new JoliNotifier(), $this->dispatcher))->setHost($dsn->getHost())->setPort($dsn->getPort());
     }
 
     /**

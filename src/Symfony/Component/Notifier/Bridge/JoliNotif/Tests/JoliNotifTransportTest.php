@@ -27,12 +27,12 @@ final class JoliNotifTransportTest extends TransportTestCase
 {
     public static function toStringProvider(): iterable
     {
-        yield ['jolinotif://default', self::createTransport()];
+        yield ['jolinotif://localhost', self::createTransport()];
     }
 
     public static function createTransport(?HttpClientInterface $client = null): JoliNotifTransport
     {
-        return (new JoliNotifTransport(new JoliNotifier()))->setHost('default');
+        return new JoliNotifTransport(new JoliNotifier());
     }
 
     public static function supportedMessagesProvider(): iterable

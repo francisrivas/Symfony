@@ -22,15 +22,15 @@ final class JoliNotifTransportFactoryTest extends TransportFactoryTestCase
     public static function createProvider(): iterable
     {
         yield [
-            'jolinotif://default',
-            'jolinotif://default?some_option=true',
+            'jolinotif://host.test',
+            'jolinotif://host.test?some_option=true',
         ];
     }
 
     public static function supportsProvider(): iterable
     {
-        yield [true, 'jolinotif://default'];
-        yield [false, 'somethingElse://default'];
+        yield [true, 'jolinotif://host.test'];
+        yield [false, 'somethingElse://host.test'];
     }
 
     public static function unsupportedSchemeProvider(): iterable
