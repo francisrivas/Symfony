@@ -138,6 +138,12 @@ final class DateTimeNormalizer implements NormalizerInterface, DenormalizerInter
 
     public function supportsDenormalization(mixed $data, string $type, ?string $format = null, array $context = []): bool
     {
+        foreach (self::SUPPORTED_TYPES as $supportedType => $supported) {
+            if (!$supported) {
+                continue;
+            }
+            return $type === $supportedType || is_subclass_of($type, $supportedType);
+        }
         return isset(self::SUPPORTED_TYPES[$type]);
     }
 
