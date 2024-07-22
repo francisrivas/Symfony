@@ -402,6 +402,7 @@ class DateTimeNormalizerTest extends TestCase
 class DateTimeChild extends \DateTime
 {
 }
-class DateTimeImmutableChild extends \DateTime
+
+class DateTimeImmutableChild extends \DateTimeImmutable
 {
 }
