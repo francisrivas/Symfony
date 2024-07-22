@@ -11,7 +11,7 @@ CHANGELOG
  * Add `CamelCaseToSnakeCaseNameConverter::REQUIRE_SNAKE_CASE_PROPERTIES` context option
  * Deprecate `AbstractNormalizerContextBuilder::withDefaultContructorArguments(?array $defaultContructorArguments)`, use `withDefaultConstructorArguments(?array $defaultConstructorArguments)` instead (note the missing `s` character in Contructor word in deprecated method)
  * Add `XmlEncoder::CDATA_WRAPPING_PATTERN` context option
- * Support subclasses of DateTime(Immutable) for denormalization
+ * Add `DateTimeNormalizer::SUPPORTED_TYPES_KEY` context option
 
 7.0
 ---
