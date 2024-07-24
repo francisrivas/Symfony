@@ -29,43 +29,4 @@ class GenericTypeTest extends TestCase
         $type = new GenericType(Type::object(self::class), Type::union(Type::bool(), Type::string()), Type::int(), Type::float());
         $this->assertEquals(\sprintf('%s<bool|string,int,float>', self::class), (string) $type);
     }
-
-    public function testGetBaseType()
-    {
-        $this->assertEquals(Type::object(), Type::generic(Type::object(), Type::int())->getBaseType());
-    }
-
-    public function testIsNullable()
-    {
-        $this->assertFalse((new GenericType(Type::builtin(TypeIdentifier::ARRAY), Type::int()))->isNullable());
-        $this->assertTrue((new GenericType(Type::null(), Type::int()))->isNullable());
-        $this->assertTrue((new GenericType(Type::mixed(), Type::int()))->isNullable());
-    }
-
-    public function testAsNonNullable()
-    {
-        $type = new GenericType(Type::builtin(TypeIdentifier::ARRAY), Type::int());
-
-        $this->assertSame($type, $type->asNonNullable());
-    }
-
-    public function testIsA()
-    {
-        $type = new GenericType(Type::builtin(TypeIdentifier::ARRAY), Type::string(), Type::bool());
-        $this->assertTrue($type->isA(TypeIdentifier::ARRAY));
-        $this->assertFalse($type->isA(TypeIdentifier::STRING));
-        $this->assertFalse($type->isA(self::class));
-
-        $type = new GenericType(Type::object(self::class), Type::union(Type::bool(), Type::string()), Type::int(), Type::float());
-        $this->assertTrue($type->isA(TypeIdentifier::OBJECT));
-        $this->assertFalse($type->isA(TypeIdentifier::INT));
-        $this->assertFalse($type->isA(TypeIdentifier::STRING));
-        $this->assertTrue($type->isA(self::class));
-    }
-
-    public function testProxiesMethodsToBaseType()
-    {
-        $type = new GenericType(Type::object(self::class), Type::float());
-        $this->assertSame(self::class, $type->getClassName());
-    }
 }

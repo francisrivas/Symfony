@@ -17,16 +17,16 @@ use Symfony\Component\TypeInfo\TypeIdentifier;
 /**
  * Represents a generic type, which is a type that holds variable parts.
  *
- * It proxies every method to the main type and adds methods related to variable types.
- *
  * @author Mathias Arlaud <mathias.arlaud@gmail.com>
  * @author Baptiste Leduc <baptiste.leduc@gmail.com>
  *
  * @template T of BuiltinType<TypeIdentifier::ARRAY>|BuiltinType<TypeIdentifier::ITERABLE>|ObjectType
  *
+ * @implements WrappingTypeInterface<T>
+ *
  * @experimental
  */
-final class GenericType extends Type
+final class GenericType extends Type implements WrappingTypeInterface
 {
     /**
      * @var list<Type>
@@ -43,27 +43,9 @@ final class GenericType extends Type
         $this->variableTypes = $variableTypes;
     }
 
-    public function getBaseType(): BuiltinType|ObjectType
-    {
-        return $this->getType();
-    }
-
-    /**
-     * @return T
-     */
-    public function getType(): BuiltinType|ObjectType
+    public function getWrappedType(): Type
     {
         return $this->type;
-    }
-
-    public function isA(TypeIdentifier|string $subject): bool
-    {
-        return $this->getType()->isA($subject);
-    }
-
-    public function asNonNullable(): self
-    {
-        return $this;
     }
 
     /**
@@ -86,15 +68,5 @@ final class GenericType extends Type
         }
 
         return $typeString.'<'.$variableTypesString.'>';
-    }
-
-    /**
-     * Proxies all method calls to the original type.
-     *
-     * @param list<mixed> $arguments
-     */
-    public function __call(string $method, array $arguments): mixed
-    {
-        return $this->type->{$method}(...$arguments);
     }
 }

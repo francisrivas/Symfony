@@ -17,6 +17,7 @@ use Symfony\Component\TypeInfo\Type\CollectionType;
 use Symfony\Component\TypeInfo\Type\EnumType;
 use Symfony\Component\TypeInfo\Type\GenericType;
 use Symfony\Component\TypeInfo\Type\IntersectionType;
+use Symfony\Component\TypeInfo\Type\NullableType;
 use Symfony\Component\TypeInfo\Type\ObjectType;
 use Symfony\Component\TypeInfo\Type\TemplateType;
 use Symfony\Component\TypeInfo\Type\UnionType;
@@ -249,26 +250,47 @@ trait TypeFactoryTrait
      *
      * @param list<T> $types
      *
-     * @return UnionType<Type>
+     * @return UnionType<T>|NullableType<T>
      */
     public static function union(Type ...$types): UnionType
     {
         /** @var list<T> $unionTypes */
         $unionTypes = [];
 
+        $nullableUnion = false;
+        $isNullable = fn (Type $type): bool => $type instanceof BuiltinType && TypeIdentifier::NULL === $type->getTypeIdentifier();
+
         foreach ($types as $type) {
-            if (!$type instanceof UnionType) {
-                $unionTypes[] = $type;
+            if ($type instanceof UnionType) {
+                foreach ($type->getTypes() as $unionType) {
+                    if ($isNullable($type)) {
+                        $nullableUnion = true;
+
+                        continue;
+                    }
+
+                    $unionTypes[] = $unionType;
+                }
 
                 continue;
             }
 
-            foreach ($type->getTypes() as $unionType) {
-                $unionTypes[] = $unionType;
+            if ($isNullable($type)) {
+                $nullableUnion = true;
+
+                continue;
             }
+
+            $unionTypes[] = $type;
         }
 
-        return new UnionType(...$unionTypes);
+        if (1 === \count($unionTypes)) {
+            return self::nullable($unionTypes[0]);
+        }
+
+        $unionType = new UnionType(...$unionTypes);
+
+        return $nullableUnion ? self::nullable($unionType) : $unionType;
     }
 
     /**
@@ -303,14 +325,14 @@ trait TypeFactoryTrait
      *
      * @param T $type
      *
-     * @return (T is UnionType ? T : UnionType<T|BuiltinType<TypeIdentifier::NULL>>)
+     * @return ($type is NullableType ? T : NullableType<T>)
      */
-    public static function nullable(Type $type): UnionType
+    public static function nullable(Type $type): NullableType
     {
-        if ($type instanceof UnionType) {
-            return Type::union(Type::null(), ...$type->getTypes());
+        if ($type instanceof NullableType) {
+            return $type;
         }
 
-        return Type::union($type, Type::null());
+        return new NullableType($type);
     }
 }

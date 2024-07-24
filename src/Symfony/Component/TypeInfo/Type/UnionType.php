@@ -11,9 +11,7 @@
 
 namespace Symfony\Component\TypeInfo\Type;
 
-use Symfony\Component\TypeInfo\Exception\LogicException;
 use Symfony\Component\TypeInfo\Type;
-use Symfony\Component\TypeInfo\TypeIdentifier;
 
 /**
  * @author Mathias Arlaud <mathias.arlaud@gmail.com>
@@ -21,50 +19,16 @@ use Symfony\Component\TypeInfo\TypeIdentifier;
  *
  * @template T of Type
  *
+ * @implements CompositeTypeInterface<T>
+ *
  * @experimental
  */
-final class UnionType extends Type
+class UnionType extends Type implements CompositeTypeInterface
 {
     /**
      * @use CompositeTypeTrait<T>
      */
     use CompositeTypeTrait;
-
-    public function is(callable $callable): bool
-    {
-        return $this->atLeastOneTypeIs($callable);
-    }
-
-    /**
-     * @throws LogicException
-     */
-    public function getBaseType(): BuiltinType|ObjectType
-    {
-        $nonNullableType = $this->asNonNullable();
-        if (!$nonNullableType instanceof self) {
-            return $nonNullableType->getBaseType();
-        }
-
-        throw new LogicException(\sprintf('Cannot get base type on "%s" compound type.', $this));
-    }
-
-    public function asNonNullable(): Type
-    {
-        $nonNullableTypes = [];
-        foreach ($this->getTypes() as $type) {
-            if ($type->isA(TypeIdentifier::NULL)) {
-                continue;
-            }
-
-            $nonNullableType = $type->asNonNullable();
-            $nonNullableTypes = [
-                ...$nonNullableTypes,
-                ...($nonNullableType instanceof self ? $nonNullableType->getTypes() : [$nonNullableType]),
-            ];
-        }
-
-        return \count($nonNullableTypes) > 1 ? new self(...$nonNullableTypes) : $nonNullableTypes[0];
-    }
 
     public function __toString(): string
     {
@@ -77,25 +41,5 @@ final class UnionType extends Type
         }
 
         return $string;
-    }
-
-    /**
-     * Proxies all method calls to the original non-nullable type.
-     *
-     * @param list<mixed> $arguments
-     */
-    public function __call(string $method, array $arguments): mixed
-    {
-        $nonNullableType = $this->asNonNullable();
-
-        if (!$nonNullableType instanceof self) {
-            if (!method_exists($nonNullableType, $method)) {
-                throw new LogicException(\sprintf('Method "%s" doesn\'t exist on "%s" type.', $method, $nonNullableType));
-            }
-
-            return $nonNullableType->{$method}(...$arguments);
-        }
-
-        throw new LogicException(\sprintf('Cannot call "%s" on "%s" compound type.', $method, $this));
     }
 }

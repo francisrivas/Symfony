@@ -16,6 +16,8 @@ use Symfony\Component\Serializer\Exception\BadMethodCallException;
 use Symfony\Component\Serializer\Exception\InvalidArgumentException;
 use Symfony\Component\Serializer\Exception\NotNormalizableValueException;
 use Symfony\Component\TypeInfo\Type;
+use Symfony\Component\TypeInfo\TypeIdentifier;
+use Symfony\Component\TypeInfo\Type\BuiltinType;
 use Symfony\Component\TypeInfo\Type\UnionType;
 
 /**
@@ -54,7 +56,10 @@ class ArrayDenormalizer implements DenormalizerInterface, DenormalizerAwareInter
         $typeIdentifiers = [];
         if (null !== $keyType = ($context['key_type'] ?? null)) {
             if ($keyType instanceof Type) {
-                $typeIdentifiers = array_map(fn (Type $t): string => $t->getBaseType()->getTypeIdentifier()->value, $keyType instanceof UnionType ? $keyType->getTypes() : [$keyType]);
+                /** @var list<BuiltinType<TypeIdentifier::INT>|BuiltinType<TypeIdentifier::STRING>> */
+                $keyTypes = $keyType instanceof UnionType ? $keyType->getTypes() : [$keyType];
+
+                $typeIdentifiers = array_map(fn (BuiltinType $t): string => $t->getTypeIdentifier()->value, $keyTypes);
             } else {
                 $typeIdentifiers = array_map(fn (LegacyType $t): string => $t->getBuiltinType(), \is_array($keyType) ? $keyType : [$keyType]);
             }

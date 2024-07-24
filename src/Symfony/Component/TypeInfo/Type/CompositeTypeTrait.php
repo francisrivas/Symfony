@@ -13,7 +13,6 @@ namespace Symfony\Component\TypeInfo\Type;
 
 use Symfony\Component\TypeInfo\Exception\InvalidArgumentException;
 use Symfony\Component\TypeInfo\Type;
-use Symfony\Component\TypeInfo\TypeIdentifier;
 
 /**
  * @author Mathias Arlaud <mathias.arlaud@gmail.com>
@@ -49,44 +48,11 @@ trait CompositeTypeTrait
         $this->types = array_values(array_unique($types));
     }
 
-    public function isA(TypeIdentifier|string $subject): bool
-    {
-        return $this->is(fn (Type $type) => $type->isA($subject));
-    }
-
     /**
      * @return list<T>
      */
     public function getTypes(): array
     {
         return $this->types;
-    }
-
-    /**
-     * @param callable(T): bool $callable
-     */
-    public function atLeastOneTypeIs(callable $callable): bool
-    {
-        foreach ($this->types as $t) {
-            if ($callable($t)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @param callable(T): bool $callable
-     */
-    public function everyTypeIs(callable $callable): bool
-    {
-        foreach ($this->types as $t) {
-            if (!$callable($t)) {
-                return false;
-            }
-        }
-
-        return true;
     }
 }
