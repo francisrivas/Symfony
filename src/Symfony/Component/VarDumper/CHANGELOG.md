@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+7.2
+---
+
+ * Add support for virtual properties
+
 7.1
 ---
 

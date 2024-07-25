@@ -89,4 +89,12 @@ class StubCaster
 
         return $a;
     }
+
+    public static function castVirtualProperty(VirtualPropertyStub $virtualPropertyStub, array $a, Stub $stub): array
+    {
+        $stub->type = Stub::TYPE_SCALAR;
+        $stub->attr['value'] = 'virtual property'.($virtualPropertyStub->propertyType ? ' of type "'.$virtualPropertyStub->propertyType.'"' : '');
+
+        return $a;
+    }
 }
