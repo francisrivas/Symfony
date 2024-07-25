@@ -58,6 +58,8 @@ EOT
             $buildDir = $kernel->getCacheDir();
         }
 
+        $xdebugMode = getenv('XDEBUG_MODE') ?: ini_get('xdebug.mode');
+
         $rows = [
             ['<info>Symfony</>'],
             new TableSeparator(),
@@ -84,8 +86,10 @@ EOT
             ['Timezone', date_default_timezone_get().' (<comment>'.(new \DateTimeImmutable())->format(\DateTimeInterface::W3C).'</>)'],
             ['OPcache', extension_loaded('Zend OPcache') ? (filter_var(ini_get('opcache.enable'), FILTER_VALIDATE_BOOLEAN) ? 'Enabled' : 'Not enabled') : 'Not installed'],
             ['APCu', extension_loaded('apcu') ? (filter_var(ini_get('apc.enabled'), FILTER_VALIDATE_BOOLEAN) ? 'Enabled' : 'Not enabled') : 'Not installed'],
-            ['Xdebug', extension_loaded('xdebug') ? (ini_get('XDEBUG_MODE') ? 'Enabled (mode: ' . ini_get('XDEBUG_MODE') . ')' : 'Not enabled') : 'Not installed'],
+            ['Xdebug', extension_loaded('xdebug') ? ($xdebugMode && $xdebugMode !== 'off' ? 'Enabled (' . $xdebugMode . ')' : 'Not enabled') : 'Not installed'],
         ];
+
+        
 
         $io->table([], $rows);
 
