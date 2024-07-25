@@ -89,8 +89,6 @@ EOT
             ['Xdebug', extension_loaded('xdebug') ? ($xdebugMode && $xdebugMode !== 'off' ? 'Enabled (' . $xdebugMode . ')' : 'Not enabled') : 'Not installed'],
         ];
 
-        
-
         $io->table([], $rows);
 
         return 0;
