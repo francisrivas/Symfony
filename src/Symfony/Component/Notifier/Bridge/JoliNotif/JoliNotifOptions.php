@@ -19,7 +19,10 @@ use Symfony\Component\Notifier\Message\MessageOptionsInterface;
  */
 final class JoliNotifOptions implements MessageOptionsInterface
 {
-    public function __construct(private ?string $iconPath = null, private array $extraOptions = [])
+    public function __construct(
+        private ?string $iconPath = null,
+        private array $extraOptions = [],
+    ) {
     {
     }
 
