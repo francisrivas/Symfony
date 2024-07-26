@@ -19,6 +19,12 @@ Security
  * Add `$token` argument to `UserCheckerInterface::checkPostAuth()`
  * Deprecate argument `$secret` of `RememberMeToken` and `RememberMeAuthenticator`
 
+Serializer
+----------
+
+ * Deprecate passing a non-empty escape character to the `csv_escape_char` option of `CsvEncoder` and the `CsvEncoder::ESCAPE_CHAR_KEY` constant
+ * Deprecate `CsvEncoderContextBuilder::withEscapeChar()` method
+
 String
 ------
 
@@ -26,6 +32,11 @@ String
    * `TruncateMode::Char` is equivalent to `true` value ;
    * `TruncateMode::WordAfter` is equivalent to `false` value ;
    * `TruncateMode::WordBefore` is a new mode that will cut the sentence on the last word before the limit is reached.
+
+Translation
+-----------
+
+ * Deprecate passing an escape character to `CsvFileLoader::setCsvControl()`
 
 Yaml
 ----

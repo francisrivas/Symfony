@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+7.2
+---
+
+ * Deprecate passing a non-empty escape character to the `csv_escape_char` option of `CsvEncoder` and the `CsvEncoder::ESCAPE_CHAR_KEY` constant
+ * Deprecate `CsvEncoderContextBuilder::withEscapeChar()` method
+
 7.1
 ---
 
