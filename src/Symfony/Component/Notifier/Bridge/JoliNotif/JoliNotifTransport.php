@@ -57,7 +57,7 @@ final class JoliNotifTransport extends AbstractTransport
         $joliNotification = $this->buildJoliNotificationObject($message, $options);
 
         if (false === $this->joliNotifier->send($joliNotification)) {
-            throw new RuntimeException(\sprintf('An error occurred within "%s" transport during sending a notification', __CLASS__));
+            throw new RuntimeException(\sprintf('An error occurred while sending a notification via the "%s" transport.', __CLASS__));
         }
 
         return new SentMessage($message, (string) $this);
