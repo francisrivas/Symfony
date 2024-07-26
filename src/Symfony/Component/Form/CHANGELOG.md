@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+7.2
+---
+
+ * Add `LazyChoiceLoader` and `choice_lazy` option in `ChoiceType` for loading and rendering choices on demand
+
 7.1
 ---
 
