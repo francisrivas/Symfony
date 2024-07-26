@@ -23,7 +23,6 @@ final class JoliNotifOptions implements MessageOptionsInterface
         private ?string $iconPath = null,
         private array $extraOptions = [],
     ) {
-    {
     }
 
     public function toArray(): array
