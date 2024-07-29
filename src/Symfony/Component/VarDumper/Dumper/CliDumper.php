@@ -586,14 +586,14 @@ class CliDumper extends AbstractDumper
             return false;
         }
 
-        // Follow https://force-color.org/
-        if (!empty($_SERVER['FORCE_COLOR'])) {
-            return true;
-        }
-        
         // Follow https://no-color.org/
         if (isset($_SERVER['NO_COLOR']) || false !== getenv('NO_COLOR')) {
             return false;
+        }
+
+        // Follow https://force-color.org/
+        if (!empty($_SERVER['FORCE_COLOR']) || !empty(getenv('FORCE_COLOR'))) {
+            return true;
         }
 
         // Detect msysgit/mingw and assume this is a tty because detection
