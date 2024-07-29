@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+7.2
+--
+
+ * Add `Request::isStateless()`
+
 7.1
 ---
 
