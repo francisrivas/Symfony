@@ -25,14 +25,12 @@ class MemcachedCaster
 
     public static function castMemcached(\Memcached $c, array $a, Stub $stub, bool $isNested): array
     {
-        $a += [
+        return $a + [
             Caster::PREFIX_VIRTUAL.'servers' => $c->getServerList(),
             Caster::PREFIX_VIRTUAL.'options' => new EnumStub(
                 self::getNonDefaultOptions($c)
             ),
         ];
-
-        return $a;
     }
 
     private static function getNonDefaultOptions(\Memcached $c): array

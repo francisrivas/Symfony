@@ -90,7 +90,7 @@ class RedisCaster
         $prefix = Caster::PREFIX_VIRTUAL;
         $failover = $c->getOption(\RedisCluster::OPT_SLAVE_FAILOVER);
 
-        $a += [
+        return $a + [
             $prefix.'_masters' => $c->_masters(),
             $prefix.'_redir' => $c->_redir(),
             $prefix.'mode' => new ConstStub($c->getMode() ? 'MULTI' : 'ATOMIC', $c->getMode()),
@@ -99,8 +99,6 @@ class RedisCaster
                 'SLAVE_FAILOVER' => isset(self::FAILOVER_OPTIONS[$failover]) ? new ConstStub(self::FAILOVER_OPTIONS[$failover], $failover) : $failover,
             ]),
         ];
-
-        return $a;
     }
 
     private static function getRedisOptions(\Redis|Relay|\RedisArray|\RedisCluster $redis, array $options = []): EnumStub

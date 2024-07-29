@@ -74,7 +74,7 @@ class ResourceCaster
         $pin = base64_decode(implode('', $pin));
         $pin = base64_encode(hash('sha256', $pin, true));
 
-        $a += [
+        return $a + [
             'subject' => new EnumStub(array_intersect_key($info['subject'], ['organizationName' => true, 'commonName' => true])),
             'issuer' => new EnumStub(array_intersect_key($info['issuer'], ['organizationName' => true, 'commonName' => true])),
             'expiry' => new ConstStub(date(\DateTimeInterface::ISO8601, $info['validTo_time_t']), $info['validTo_time_t']),
@@ -85,7 +85,5 @@ class ResourceCaster
                 'pin-sha256' => new ConstStub($pin),
             ]),
         ];
-
-        return $a;
     }
 }

@@ -43,10 +43,6 @@ class AttributeLoader implements LoaderInterface
         Context::class,
     ];
 
-    public function __construct()
-    {
-    }
-
     public function loadClassMetadata(ClassMetadataInterface $classMetadata): bool
     {
         $reflectionClass = $classMetadata->getReflectionClass();

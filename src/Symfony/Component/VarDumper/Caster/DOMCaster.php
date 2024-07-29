@@ -75,21 +75,17 @@ class DOMCaster
 
     public static function castLength($dom, array $a, Stub $stub, bool $isNested): array
     {
-        $a += [
+        return $a + [
             'length' => $dom->length,
         ];
-
-        return $a;
     }
 
     public static function castImplementation(\DOMImplementation|\Dom\Implementation $dom, array $a, Stub $stub, bool $isNested): array
     {
-        $a += [
+        return $a + [
             Caster::PREFIX_VIRTUAL.'Core' => '1.0',
             Caster::PREFIX_VIRTUAL.'XML' => '2.0',
         ];
-
-        return $a;
     }
 
     public static function castNode(\DOMNode|\Dom\Node $dom, array $a, Stub $stub, bool $isNested): array
@@ -123,7 +119,7 @@ class DOMCaster
 
     public static function castNameSpaceNode(\DOMNameSpaceNode $dom, array $a, Stub $stub, bool $isNested): array
     {
-        $a += [
+        return $a + [
             'nodeName' => $dom->nodeName,
             'nodeValue' => new CutStub($dom->nodeValue),
             'nodeType' => new ConstStub(self::NODE_TYPES[$dom->nodeType], $dom->nodeType),
@@ -133,8 +129,6 @@ class DOMCaster
             'ownerDocument' => new CutStub($dom->ownerDocument),
             'parentNode' => new CutStub($dom->parentNode),
         ];
-
-        return $a;
     }
 
     public static function castDocument(\DOMDocument $dom, array $a, Stub $stub, bool $isNested, int $filter = 0): array
@@ -210,12 +204,10 @@ class DOMCaster
 
     public static function castCharacterData(\DOMCharacterData|\Dom\CharacterData $dom, array $a, Stub $stub, bool $isNested): array
     {
-        $a += [
+        return $a + [
             'data' => $dom->data,
             'length' => $dom->length,
         ];
-
-        return $a;
     }
 
     public static function castAttr(\DOMAttr|\Dom\Attr $dom, array $a, Stub $stub, bool $isNested): array
@@ -253,16 +245,14 @@ class DOMCaster
 
     public static function castText(\DOMText|\Dom\Text $dom, array $a, Stub $stub, bool $isNested): array
     {
-        $a += [
+        return $a + [
             'wholeText' => $dom->wholeText,
         ];
-
-        return $a;
     }
 
     public static function castDocumentType(\DOMDocumentType|\Dom\DocumentType $dom, array $a, Stub $stub, bool $isNested): array
     {
-        $a += [
+        return $a + [
             'name' => $dom->name,
             'entities' => $dom->entities,
             'notations' => $dom->notations,
@@ -270,47 +260,37 @@ class DOMCaster
             'systemId' => $dom->systemId,
             'internalSubset' => $dom->internalSubset,
         ];
-
-        return $a;
     }
 
     public static function castNotation(\DOMNotation|\Dom\Notation $dom, array $a, Stub $stub, bool $isNested): array
     {
-        $a += [
+        return $a + [
             'publicId' => $dom->publicId,
             'systemId' => $dom->systemId,
         ];
-
-        return $a;
     }
 
     public static function castEntity(\DOMEntity|\Dom\Entity $dom, array $a, Stub $stub, bool $isNested): array
     {
-        $a += [
+        return $a + [
             'publicId' => $dom->publicId,
             'systemId' => $dom->systemId,
             'notationName' => $dom->notationName,
         ];
-
-        return $a;
     }
 
     public static function castProcessingInstruction(\DOMProcessingInstruction|\Dom\ProcessingInstruction $dom, array $a, Stub $stub, bool $isNested): array
     {
-        $a += [
+        return $a + [
             'target' => $dom->target,
             'data' => $dom->data,
         ];
-
-        return $a;
     }
 
     public static function castXPath(\DOMXPath|\Dom\XPath $dom, array $a, Stub $stub, bool $isNested): array
     {
-        $a += [
+        return $a + [
             'document' => $dom->document,
         ];
-
-        return $a;
     }
 }

@@ -41,11 +41,9 @@ class SplCaster
 
     public static function castHeap(\Iterator $c, array $a, Stub $stub, bool $isNested): array
     {
-        $a += [
+        return $a + [
             Caster::PREFIX_VIRTUAL.'heap' => iterator_to_array(clone $c),
         ];
-
-        return $a;
     }
 
     public static function castDoublyLinkedList(\SplDoublyLinkedList $c, array $a, Stub $stub, bool $isNested): array
@@ -190,11 +188,9 @@ class SplCaster
             ]);
         }
 
-        $a += [
+        return $a + [
             Caster::PREFIX_VIRTUAL.'storage' => $storage,
         ];
-
-        return $a;
     }
 
     public static function castOuterIterator(\OuterIterator $c, array $a, Stub $stub, bool $isNested): array
@@ -222,11 +218,9 @@ class SplCaster
             ]);
         }
 
-        $a += [
+        return $a + [
             Caster::PREFIX_VIRTUAL.'map' => $map,
         ];
-
-        return $a;
     }
 
     private static function castSplArray(\ArrayObject|\ArrayIterator $c, array $a, Stub $stub, bool $isNested): array

@@ -166,11 +166,7 @@ class RedisStore implements PersistingStoreInterface
             return $this->redis->_instance($this->redis->_target($resource))->eval($script, array_merge([$resource], $args), 1);
         }
 
-        if ($this->redis instanceof \Predis\ClientInterface) {
-            return $this->redis->eval(...array_merge([$script, 1, $resource], $args));
-        }
-
-        throw new InvalidArgumentException(\sprintf('"%s()" expects being initialized with a Redis, RedisArray, RedisCluster or Predis\ClientInterface, "%s" given.', __METHOD__, get_debug_type($this->redis)));
+        return $this->redis->eval(...array_merge([$script, 1, $resource], $args));
     }
 
     private function getUniqueToken(Key $key): string
