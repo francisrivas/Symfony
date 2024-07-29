@@ -17,6 +17,7 @@ use Symfony\Component\Notifier\Message\MessageInterface;
 use Symfony\Component\Notifier\Message\SentMessage;
 use Symfony\Component\Notifier\Message\SmsMessage;
 use Symfony\Component\Notifier\Transport\AbstractTransport;
+use Symfony\Component\Uid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -61,7 +62,7 @@ final class IqsmsTransport extends AbstractTransport
                         'phone' => $message->getPhone(),
                         'text' => $message->getSubject(),
                         'sender' => $message->getFrom() ?: $this->from,
-                        'clientId' => bin2hex(random_bytes(4)),
+                        'clientId' => Uuid::v7()->toBase58(),
                     ],
                 ],
                 'login' => $this->login,
