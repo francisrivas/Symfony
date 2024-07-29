@@ -121,6 +121,31 @@ class MappedAssetFactoryTest extends TestCase
         $this->assertSame('7e4f24ebddd4ab2a3bcf0d89270b9f30', $asset->digest);
     }
 
+    public function testCreateMappedAssetHashAlgorithms()
+    {
+        // Not set defaults to xxh128
+        $factory = $this->createFactory();
+        $asset = $factory->createMappedAsset('subdir/file6.js', __DIR__.'/../Fixtures/dir2/subdir/file6.js');
+        $this->assertSame('7f983f4053a57f07551fed6099c0da4e', $asset->digest);
+
+        // xxh128
+        $factory = $this->createFactory(null, 'xxh128');
+        $asset = $factory->createMappedAsset('subdir/file6.js', __DIR__.'/../Fixtures/dir2/subdir/file6.js');
+        $this->assertSame(hash_file('xxh128', __DIR__.'/../Fixtures/dir2/subdir/file6.js'), $asset->digest);
+
+        // xxh3
+        $factory = $this->createFactory(null, 'xxh3');
+        $asset = $factory->createMappedAsset('subdir/file6.js', __DIR__.'/../Fixtures/dir2/subdir/file6.js');
+        $this->assertSame('6ba256c3aa14bcc2', $asset->digest);
+        $this->assertSame(hash_file('xxh3', __DIR__.'/../Fixtures/dir2/subdir/file6.js'), $asset->digest);
+
+        // crc32c
+        $factory = $this->createFactory(null, 'crc32c');
+        $asset = $factory->createMappedAsset('subdir/file6.js', __DIR__.'/../Fixtures/dir2/subdir/file6.js');
+        $this->assertSame('e2798e70', $asset->digest);
+        $this->assertSame(hash_file('crc32c', __DIR__.'/../Fixtures/dir2/subdir/file6.js'), $asset->digest);
+    }
+
     public function testCreateMappedAssetWithPredigested()
     {
         $assetMapper = $this->createFactory();
@@ -137,7 +162,7 @@ class MappedAssetFactoryTest extends TestCase
         $this->assertTrue($asset->isVendor);
     }
 
-    private function createFactory(?AssetCompilerInterface $extraCompiler = null): MappedAssetFactory
+    private function createFactory(?AssetCompilerInterface $extraCompiler = null, ?string $hashAlgorithm = null): MappedAssetFactory
     {
         $compilers = [
             new JavaScriptImportPathCompiler($this->createMock(ImportMapConfigReader::class)),
@@ -159,11 +184,20 @@ class MappedAssetFactoryTest extends TestCase
                 return '/final-assets/'.$logicalPath;
             });
 
-        $factory = new MappedAssetFactory(
-            $pathResolver,
-            $compiler,
-            __DIR__.'/../Fixtures/assets/vendor',
-        );
+        if (null !== $hashAlgorithm) {
+            $factory = new MappedAssetFactory(
+                $pathResolver,
+                $compiler,
+                __DIR__.'/../Fixtures/assets/vendor',
+                $hashAlgorithm,
+            );
+        } else {
+            $factory = new MappedAssetFactory(
+                $pathResolver,
+                $compiler,
+                __DIR__.'/../Fixtures/assets/vendor',
+            );
+        }
 
         // mock the AssetMapper to behave like normal: by calling back to the factory
         $this->assetMapper = $this->createMock(AssetMapperInterface::class);

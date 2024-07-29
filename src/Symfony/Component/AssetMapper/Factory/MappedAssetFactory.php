@@ -25,6 +25,8 @@ class MappedAssetFactory implements MappedAssetFactoryInterface
 {
     private const PREDIGESTED_REGEX = '/-([0-9a-zA-Z]{7,128}\.digested)/';
 
+    private const DEFAULT_HASH_ALGORITHM = 'xxh128';
+
     private array $assetsCache = [];
     private array $assetsBeingCreated = [];
 
@@ -32,6 +34,7 @@ class MappedAssetFactory implements MappedAssetFactoryInterface
         private readonly PublicAssetsPathResolverInterface $assetsPathResolver,
         private readonly AssetMapperCompiler $compiler,
         private readonly string $vendorDir,
+        private readonly string $hashAlgorithm = self::DEFAULT_HASH_ALGORITHM,
     ) {
     }
 
@@ -86,11 +89,11 @@ class MappedAssetFactory implements MappedAssetFactoryInterface
 
         // Use the compiled content if any
         if (null !== $content) {
-            return [hash('xxh128', $content), false];
+            return [hash($this->hashAlgorithm, $content), false];
         }
 
         return [
-            hash_file('xxh128', $asset->sourcePath),
+            hash_file($this->hashAlgorithm, $asset->sourcePath),
             false,
         ];
     }
