@@ -5,6 +5,7 @@ CHANGELOG
 ---
 
  * Add `#[WhenNot]` attribute to prevent service from being registered in a specific environment
+ * Allow using an enum FQCN with `EnumNode`
 
 7.1
 ---
