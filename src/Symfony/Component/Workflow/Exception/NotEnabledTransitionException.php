@@ -15,7 +15,7 @@ use Symfony\Component\Workflow\TransitionBlockerList;
 use Symfony\Component\Workflow\WorkflowInterface;
 
 /**
- * Thrown by Workflow when a not enabled transition is applied on a subject.
+ * Thrown by Workflow when transition is not able to be applied on a subject.
  *
  * @author Grégoire Pineau <lyrixx@lyrixx.info>
  */
@@ -28,7 +28,7 @@ class NotEnabledTransitionException extends TransitionException
         private TransitionBlockerList $transitionBlockerList,
         array $context = [],
     ) {
-        parent::__construct($subject, $transitionName, $workflow, \sprintf('Transition "%s" is not enabled for workflow "%s".', $transitionName, $workflow->getName()), $context);
+        parent::__construct($subject, $transitionName, $workflow, \sprintf('Can not apply transition "%s" for workflow "%s".', $transitionName, $workflow->getName()), $context);
     }
 
     public function getTransitionBlockerList(): TransitionBlockerList
