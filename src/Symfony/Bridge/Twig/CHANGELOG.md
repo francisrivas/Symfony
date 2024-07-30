@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+7.2
+---
+
+* Create `ChainCache` and `ReadOnlyFilesystemCache`
+
 7.1
 ---
 
