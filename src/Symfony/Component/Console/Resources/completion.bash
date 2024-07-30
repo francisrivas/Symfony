@@ -6,8 +6,6 @@
 # https://symfony.com/doc/current/contributing/code/license.html
 
 _sf_{{ COMMAND_NAME }}() {
-    # Use newline as only separator to allow space in completion values
-    IFS=$'\n'
     local sf_cmd="${COMP_WORDS[0]}"
 
     # for an alias, get the real script behind it
