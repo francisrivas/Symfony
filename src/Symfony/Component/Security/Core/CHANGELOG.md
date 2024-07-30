@@ -7,6 +7,11 @@ CHANGELOG
  * Add `$token` argument to `UserCheckerInterface::checkPostAuth()`
  * Deprecate argument `$secret` of `RememberMeToken`
 
+7.1
+---
+
+ * Add `getEncompassingRoleNames` method to `RoleHierarchyInterface`
+
 7.0
 ---
 
