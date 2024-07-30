@@ -13,6 +13,7 @@ namespace Symfony\Component\AssetMapper\Factory;
 
 use Symfony\Component\AssetMapper\AssetMapperCompiler;
 use Symfony\Component\AssetMapper\Exception\CircularAssetsException;
+use Symfony\Component\AssetMapper\Exception\InvalidArgumentException;
 use Symfony\Component\AssetMapper\Exception\RuntimeException;
 use Symfony\Component\AssetMapper\MappedAsset;
 use Symfony\Component\AssetMapper\Path\PublicAssetsPathResolverInterface;
@@ -25,8 +26,6 @@ class MappedAssetFactory implements MappedAssetFactoryInterface
 {
     private const PREDIGESTED_REGEX = '/-([0-9a-zA-Z]{7,128}\.digested)/';
 
-    private const DEFAULT_HASH_ALGORITHM = 'xxh128';
-
     private array $assetsCache = [];
     private array $assetsBeingCreated = [];
 
@@ -34,8 +33,11 @@ class MappedAssetFactory implements MappedAssetFactoryInterface
         private readonly PublicAssetsPathResolverInterface $assetsPathResolver,
         private readonly AssetMapperCompiler $compiler,
         private readonly string $vendorDir,
-        private readonly string $hashAlgorithm = self::DEFAULT_HASH_ALGORITHM,
+        private readonly string $hashAlgorithm = 'xxh128',
     ) {
+        if (!\in_array($this->hashAlgorithm, hash_algos(), true)) {
+            throw new InvalidArgumentException(\sprintf('The hash algorithm "%s" is not supported.', $this->hashAlgorithm));
+        }
     }
 
     public function createMappedAsset(string $logicalPath, string $sourcePath): ?MappedAsset

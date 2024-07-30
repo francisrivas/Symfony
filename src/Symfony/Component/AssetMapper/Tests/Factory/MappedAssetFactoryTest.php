@@ -19,6 +19,7 @@ use Symfony\Component\AssetMapper\Compiler\AssetCompilerInterface;
 use Symfony\Component\AssetMapper\Compiler\CssAssetUrlCompiler;
 use Symfony\Component\AssetMapper\Compiler\JavaScriptImportPathCompiler;
 use Symfony\Component\AssetMapper\Exception\CircularAssetsException;
+use Symfony\Component\AssetMapper\Exception\InvalidArgumentException;
 use Symfony\Component\AssetMapper\Factory\MappedAssetFactory;
 use Symfony\Component\AssetMapper\ImportMap\ImportMapConfigReader;
 use Symfony\Component\AssetMapper\MappedAsset;
@@ -121,29 +122,30 @@ class MappedAssetFactoryTest extends TestCase
         $this->assertSame('7e4f24ebddd4ab2a3bcf0d89270b9f30', $asset->digest);
     }
 
-    public function testCreateMappedAssetHashAlgorithms()
+    /**
+     * @dataProvider provideHashAlgorithms
+     */
+    public function testCreateMappedAssetHashAlgorithms(?string $hashAlgorithm)
     {
-        // Not set defaults to xxh128
-        $factory = $this->createFactory();
+        $factory = $this->createFactory(null, $hashAlgorithm);
         $asset = $factory->createMappedAsset('subdir/file6.js', __DIR__.'/../Fixtures/dir2/subdir/file6.js');
-        $this->assertSame('7f983f4053a57f07551fed6099c0da4e', $asset->digest);
+        $this->assertSame(hash_file($hashAlgorithm ?? 'xxh128', __DIR__.'/../Fixtures/dir2/subdir/file6.js'), $asset->digest);
+    }
 
-        // xxh128
-        $factory = $this->createFactory(null, 'xxh128');
-        $asset = $factory->createMappedAsset('subdir/file6.js', __DIR__.'/../Fixtures/dir2/subdir/file6.js');
-        $this->assertSame(hash_file('xxh128', __DIR__.'/../Fixtures/dir2/subdir/file6.js'), $asset->digest);
+    public static function provideHashAlgorithms()
+    {
+        yield 'none' => [null];
+        yield 'xxh128' => ['xxh128'];
+        yield 'xxh3' => ['xxh3'];
+        yield 'crc32c' => ['crc32c'];
+    }
 
-        // xxh3
-        $factory = $this->createFactory(null, 'xxh3');
-        $asset = $factory->createMappedAsset('subdir/file6.js', __DIR__.'/../Fixtures/dir2/subdir/file6.js');
-        $this->assertSame('6ba256c3aa14bcc2', $asset->digest);
-        $this->assertSame(hash_file('xxh3', __DIR__.'/../Fixtures/dir2/subdir/file6.js'), $asset->digest);
+    public function testHashAlgorithmMustBeValid()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The hash algorithm "not_a_valid_algo" is not supported.');
 
-        // crc32c
-        $factory = $this->createFactory(null, 'crc32c');
-        $asset = $factory->createMappedAsset('subdir/file6.js', __DIR__.'/../Fixtures/dir2/subdir/file6.js');
-        $this->assertSame('e2798e70', $asset->digest);
-        $this->assertSame(hash_file('crc32c', __DIR__.'/../Fixtures/dir2/subdir/file6.js'), $asset->digest);
+        $this->createFactory(null, 'not_a_valid_algo');
     }
 
     public function testCreateMappedAssetWithPredigested()
