@@ -50,6 +50,7 @@ final class UnsupportedSchemeExceptionTest extends TestCase
             Bridge\Infobip\InfobipTransportFactory::class => false,
             Bridge\Iqsms\IqsmsTransportFactory::class => false,
             Bridge\Isendpro\IsendproTransportFactory::class => false,
+            Bridge\JoliNotif\JoliNotifTransportFactory::class => false,
             Bridge\KazInfoTeh\KazInfoTehTransportFactory::class => false,
             Bridge\LightSms\LightSmsTransportFactory::class => false,
             Bridge\LineNotify\LineNotifyTransportFactory::class => false,
@@ -141,6 +142,7 @@ final class UnsupportedSchemeExceptionTest extends TestCase
         yield ['infobip', 'symfony/infobip-notifier'];
         yield ['iqsms', 'symfony/iqsms-notifier'];
         yield ['isendpro', 'symfony/isendpro-notifier'];
+        yield ['jolinotif', 'symfony/joli-notif-notifier'];
         yield ['lightsms', 'symfony/light-sms-notifier'];
         yield ['linenotify', 'symfony/line-notify-notifier'];
         yield ['linkedin', 'symfony/linked-in-notifier'];
