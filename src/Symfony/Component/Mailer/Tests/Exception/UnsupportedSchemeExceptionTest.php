@@ -28,6 +28,7 @@ use Symfony\Component\Mailer\Bridge\Postmark\Transport\PostmarkTransportFactory;
 use Symfony\Component\Mailer\Bridge\Resend\Transport\ResendTransportFactory;
 use Symfony\Component\Mailer\Bridge\Scaleway\Transport\ScalewayTransportFactory;
 use Symfony\Component\Mailer\Bridge\Sendgrid\Transport\SendgridTransportFactory;
+use Symfony\Component\Mailer\Bridge\Sweego\Transport\SweegoTransportFactory;
 use Symfony\Component\Mailer\Exception\UnsupportedSchemeException;
 use Symfony\Component\Mailer\Transport\Dsn;
 
@@ -55,6 +56,7 @@ final class UnsupportedSchemeExceptionTest extends TestCase
             ScalewayTransportFactory::class => false,
             SendgridTransportFactory::class => false,
             SesTransportFactory::class => false,
+            SweegoTransportFactory::class => false,
         ]);
     }
 
@@ -88,6 +90,7 @@ final class UnsupportedSchemeExceptionTest extends TestCase
         yield ['scaleway', 'symfony/scaleway-mailer'];
         yield ['sendgrid', 'symfony/sendgrid-mailer'];
         yield ['ses', 'symfony/amazon-mailer'];
+        yield ['sweego', 'symfony/sweego-mailer'];
     }
 
     /**
