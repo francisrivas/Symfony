@@ -126,6 +126,7 @@ class PhpFileLoaderTest extends TestCase
         yield ['closure'];
         yield ['from_callable'];
         yield ['env_param'];
+        yield ['class_map'];
     }
 
     public function testAutoConfigureAndChildDefinition()
