@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+7.2
+---
+
+ * Add optional `$hashAlgorithm` argument to the `MappedAssetFactory` constructor
+
 7.1
 ---
 
