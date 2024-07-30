@@ -77,9 +77,7 @@ final class SipgateTransport extends AbstractTransport
         }
 
         if (204 === $statusCode) {
-            $sentMessage = new SentMessage($message, (string) $this);
-
-            return $sentMessage;
+            return new SentMessage($message, (string) $this);
         } elseif (401 === $statusCode) {
             throw new TransportException(sprintf('Unable to send SMS with Sipgate: Error code %d - tokenId or token is wrong.', $statusCode), $response);    
         } elseif (402 === $statusCode) {

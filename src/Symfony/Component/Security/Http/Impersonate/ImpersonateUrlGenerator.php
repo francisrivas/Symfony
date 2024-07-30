@@ -81,8 +81,6 @@ class ImpersonateUrlGenerator
 
         $targetUri ??= $request->getRequestUri();
 
-        $targetUri .= (parse_url($targetUri, \PHP_URL_QUERY) ? '&' : '?').http_build_query([$switchUserConfig['parameter'] => $identifier], '', '&');
-
-        return $targetUri;
+        return $targetUri.(parse_url($targetUri, \PHP_URL_QUERY) ? '&' : '?').http_build_query([$switchUserConfig['parameter'] => $identifier], '', '&');
     }
 }

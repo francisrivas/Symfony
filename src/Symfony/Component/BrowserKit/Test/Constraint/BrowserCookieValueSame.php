@@ -34,9 +34,8 @@ final class BrowserCookieValueSame extends Constraint
         if ($this->domain) {
             $str .= \sprintf(' for domain "%s"', $this->domain);
         }
-        $str .= \sprintf(' with %svalue "%s"', $this->raw ? 'raw ' : '', $this->value);
 
-        return $str;
+        return $str.\sprintf(' with %svalue "%s"', $this->raw ? 'raw ' : '', $this->value);
     }
 
     /**
