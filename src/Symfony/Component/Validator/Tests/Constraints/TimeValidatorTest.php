@@ -74,9 +74,7 @@ class TimeValidatorTest extends ConstraintValidatorTestCase
      */
     public function testValidTimesWithoutSeconds(string $time)
     {
-        $this->validator->validate($time, new Time([
-            'withSeconds' => false,
-        ]));
+        $this->validator->validate($time, new Time(withSeconds: false));
 
         $this->assertNoViolation();
     }
@@ -117,9 +115,7 @@ class TimeValidatorTest extends ConstraintValidatorTestCase
      */
     public function testInvalidTimes($time, $code)
     {
-        $constraint = new Time([
-            'message' => 'myMessage',
-        ]);
+        $constraint = new Time(message: 'myMessage');
 
         $this->validator->validate($time, $constraint);
 

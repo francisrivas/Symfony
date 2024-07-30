@@ -65,9 +65,7 @@ class UlidValidatorTest extends ConstraintValidatorTestCase
      */
     public function testInvalidUlid(string $ulid, string $code)
     {
-        $constraint = new Ulid([
-            'message' => 'testMessage',
-        ]);
+        $constraint = new Ulid(message: 'testMessage');
 
         $this->validator->validate($ulid, $constraint);
 

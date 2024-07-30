@@ -84,7 +84,7 @@ class EmailValidatorTest extends ConstraintValidatorTestCase
      */
     public function testValidNormalizedEmails($email)
     {
-        $this->validator->validate($email, new Email(['normalizer' => 'trim']));
+        $this->validator->validate($email, new Email(normalizer: 'trim'));
 
         $this->assertNoViolation();
     }
@@ -102,7 +102,7 @@ class EmailValidatorTest extends ConstraintValidatorTestCase
      */
     public function testValidEmailsHtml5($email)
     {
-        $this->validator->validate($email, new Email(['mode' => Email::VALIDATION_MODE_HTML5]));
+        $this->validator->validate($email, new Email(mode: Email::VALIDATION_MODE_HTML5));
 
         $this->assertNoViolation();
     }
@@ -122,9 +122,7 @@ class EmailValidatorTest extends ConstraintValidatorTestCase
      */
     public function testInvalidEmails($email)
     {
-        $constraint = new Email([
-            'message' => 'myMessage',
-        ]);
+        $constraint = new Email(message: 'myMessage');
 
         $this->validator->validate($email, $constraint);
 
@@ -149,10 +147,10 @@ class EmailValidatorTest extends ConstraintValidatorTestCase
      */
     public function testInvalidHtml5Emails($email)
     {
-        $constraint = new Email([
-            'message' => 'myMessage',
-            'mode' => Email::VALIDATION_MODE_HTML5,
-        ]);
+        $constraint = new Email(
+            message: 'myMessage',
+            mode: Email::VALIDATION_MODE_HTML5,
+        );
 
         $this->validator->validate($email, $constraint);
 
@@ -189,10 +187,10 @@ class EmailValidatorTest extends ConstraintValidatorTestCase
      */
     public function testInvalidAllowNoTldEmails($email)
     {
-        $constraint = new Email([
-            'message' => 'myMessage',
-            'mode' => Email::VALIDATION_MODE_HTML5_ALLOW_NO_TLD,
-        ]);
+        $constraint = new Email(
+            message: 'myMessage',
+            mode: Email::VALIDATION_MODE_HTML5_ALLOW_NO_TLD,
+        );
 
         $this->validator->validate($email, $constraint);
 
@@ -215,7 +213,7 @@ class EmailValidatorTest extends ConstraintValidatorTestCase
 
     public function testModeStrict()
     {
-        $constraint = new Email(['mode' => Email::VALIDATION_MODE_STRICT]);
+        $constraint = new Email(mode: Email::VALIDATION_MODE_STRICT);
 
         $this->validator->validate('example@mywebsite.tld', $constraint);
 
@@ -224,7 +222,7 @@ class EmailValidatorTest extends ConstraintValidatorTestCase
 
     public function testModeHtml5()
     {
-        $constraint = new Email(['mode' => Email::VALIDATION_MODE_HTML5]);
+        $constraint = new Email(mode: Email::VALIDATION_MODE_HTML5);
 
         $this->validator->validate('example@example..com', $constraint);
 
@@ -236,7 +234,7 @@ class EmailValidatorTest extends ConstraintValidatorTestCase
 
     public function testModeHtml5AllowNoTld()
     {
-        $constraint = new Email(['mode' => Email::VALIDATION_MODE_HTML5_ALLOW_NO_TLD]);
+        $constraint = new Email(mode: Email::VALIDATION_MODE_HTML5_ALLOW_NO_TLD);
 
         $this->validator->validate('example@example', $constraint);
 
@@ -259,10 +257,10 @@ class EmailValidatorTest extends ConstraintValidatorTestCase
      */
     public function testStrictWithInvalidEmails($email)
     {
-        $constraint = new Email([
-            'message' => 'myMessage',
-            'mode' => Email::VALIDATION_MODE_STRICT,
-        ]);
+        $constraint = new Email(
+            message: 'myMessage',
+            mode: Email::VALIDATION_MODE_STRICT,
+        );
 
         $this->validator->validate($email, $constraint);
 

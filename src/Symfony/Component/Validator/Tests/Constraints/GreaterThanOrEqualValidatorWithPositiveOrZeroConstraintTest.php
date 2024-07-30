@@ -48,6 +48,9 @@ class GreaterThanOrEqualValidatorWithPositiveOrZeroConstraintTest extends Greate
         ];
     }
 
+    /**
+     * @group legacy
+     */
     public function testThrowsConstraintExceptionIfPropertyPath()
     {
         $this->expectException(ConstraintDefinitionException::class);
@@ -56,6 +59,9 @@ class GreaterThanOrEqualValidatorWithPositiveOrZeroConstraintTest extends Greate
         return new PositiveOrZero(['propertyPath' => 'field']);
     }
 
+    /**
+     * @group legacy
+     */
     public function testThrowsConstraintExceptionIfValue()
     {
         $this->expectException(ConstraintDefinitionException::class);

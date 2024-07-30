@@ -50,7 +50,7 @@ class DummyCompoundConstraint extends Compound
     {
         return [
             new NotBlank(),
-            new Length(['max' => 3]),
+            new Length(max: 3),
         ];
     }
 }

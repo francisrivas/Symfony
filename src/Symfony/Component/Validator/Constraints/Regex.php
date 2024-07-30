@@ -11,6 +11,7 @@
 
 namespace Symfony\Component\Validator\Constraints;
 
+use Symfony\Component\Validator\Attribute\HasNamedArguments;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\InvalidArgumentException;
 
@@ -42,6 +43,7 @@ class Regex extends Constraint
      * @param string[]|null                   $groups
      * @param array<string,mixed>             $options
      */
+    #[HasNamedArguments]
     public function __construct(
         string|array|null $pattern,
         ?string $message = null,
@@ -53,6 +55,8 @@ class Regex extends Constraint
         array $options = [],
     ) {
         if (\is_array($pattern)) {
+            trigger_deprecation('symfony/validator', '7.2', 'Passing an array of options to configure the %s constraint is deprecated, use named arguments instead.', static::class);
+
             $options = array_merge($pattern, $options);
         } elseif (null !== $pattern) {
             $options['value'] = $pattern;

@@ -24,14 +24,14 @@ class CardSchemeValidatorTest extends ConstraintValidatorTestCase
 
     public function testNullIsValid()
     {
-        $this->validator->validate(null, new CardScheme(['schemes' => []]));
+        $this->validator->validate(null, new CardScheme([]));
 
         $this->assertNoViolation();
     }
 
     public function testEmptyStringIsValid()
     {
-        $this->validator->validate('', new CardScheme(['schemes' => []]));
+        $this->validator->validate('', new CardScheme([]));
 
         $this->assertNoViolation();
     }
@@ -41,7 +41,7 @@ class CardSchemeValidatorTest extends ConstraintValidatorTestCase
      */
     public function testValidNumbers($scheme, $number)
     {
-        $this->validator->validate($number, new CardScheme(['schemes' => $scheme]));
+        $this->validator->validate($number, new CardScheme($scheme));
 
         $this->assertNoViolation();
     }
@@ -61,10 +61,10 @@ class CardSchemeValidatorTest extends ConstraintValidatorTestCase
      */
     public function testInvalidNumbers($scheme, $number, $code)
     {
-        $constraint = new CardScheme([
-            'schemes' => $scheme,
-            'message' => 'myMessage',
-        ]);
+        $constraint = new CardScheme(
+            schemes: $scheme,
+            message: 'myMessage',
+        );
 
         $this->validator->validate($number, $constraint);
 

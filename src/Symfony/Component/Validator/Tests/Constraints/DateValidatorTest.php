@@ -67,9 +67,7 @@ class DateValidatorTest extends ConstraintValidatorTestCase
      */
     public function testInvalidDates($date, $code)
     {
-        $constraint = new Date([
-            'message' => 'myMessage',
-        ]);
+        $constraint = new Date(message: 'myMessage');
 
         $this->validator->validate($date, $constraint);
 
