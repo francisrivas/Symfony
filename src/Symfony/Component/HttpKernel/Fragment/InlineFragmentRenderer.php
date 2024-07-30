@@ -125,7 +125,7 @@ class InlineFragmentRenderer extends RoutableFragmentRenderer
             $subRequest->setLocale($request->getLocale());
         }
         if ($request->attributes->has('_stateless')) {
-            $subRequest->attributes->set('_stateless', $request->attributes->get('_stateless'));
+            $subRequest->setStateless($request->isStateless());
         }
         if ($request->attributes->has('_check_controller_is_allowed')) {
             $subRequest->attributes->set('_check_controller_is_allowed', $request->attributes->get('_check_controller_is_allowed'));

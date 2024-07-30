@@ -652,6 +652,16 @@ class Request
         return $default;
     }
 
+    public function setStateless(bool $stateless = true): void
+    {
+        $this->attributes->set('_stateless', $stateless);
+    }
+
+    public function isStateless(): bool
+    {
+        return $this->attributes->getBoolean('_stateless');
+    }
+
     /**
      * Gets the Session.
      *

@@ -62,7 +62,7 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
         $sessionMetadata = [];
         $sessionAttributes = [];
         $flashes = [];
-        if (!$request->attributes->getBoolean('_stateless') && $request->hasSession()) {
+        if (!$request->isStateless() && $request->hasSession()) {
             $session = $request->getSession();
             if ($session->isStarted()) {
                 $sessionMetadata['Created'] = date(\DATE_RFC822, $session->getMetadataBag()->getCreated());
@@ -106,7 +106,7 @@ class RequestDataCollector extends DataCollector implements EventSubscriberInter
             'session_metadata' => $sessionMetadata,
             'session_attributes' => $sessionAttributes,
             'session_usages' => array_values($this->sessionUsages),
-            'stateless_check' => $this->requestStack?->getMainRequest()?->attributes->get('_stateless') ?? false,
+            'stateless_check' => $this->requestStack?->getMainRequest()?->isStateless() ?? false,
             'flashes' => $flashes,
             'path_info' => $request->getPathInfo(),
             'controller' => 'n/a',
