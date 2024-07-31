@@ -127,7 +127,15 @@ class MappedAssetFactoryTest extends TestCase
      */
     public function testCreateMappedAssetHashAlgorithms(?string $hashAlgorithm, string $expectedDigest)
     {
-        $factory = $this->createFactory(null, $hashAlgorithm);
+        $pathResolver = $this->createMock(PublicAssetsPathResolverInterface::class);
+        $compiler = $this->createMock(AssetMapperCompiler::class);
+
+        if (null === $hashAlgorithm) {
+            $factory = new MappedAssetFactory($pathResolver, $compiler, 'vendorDir');
+        } else {
+            $factory = new MappedAssetFactory($pathResolver, $compiler, 'vendorDir', $hashAlgorithm);
+        }
+
         $asset = $factory->createMappedAsset('subdir/file6.js', __DIR__.'/../Fixtures/dir2/subdir/file6.js');
         $this->assertSame($expectedDigest, $asset->digest);
     }
@@ -142,10 +150,13 @@ class MappedAssetFactoryTest extends TestCase
 
     public function testHashAlgorithmMustBeValid()
     {
+        $compiler = $this->createMock(AssetMapperCompiler::class);
+        $pathResolver = $this->createMock(PublicAssetsPathResolverInterface::class);
+
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The hash algorithm "not_a_valid_algo" is not supported.');
 
-        $this->createFactory(null, 'not_a_valid_algo');
+        new MappedAssetFactory($pathResolver, $compiler, 'vendorDir', 'not_a_valid_algo');
     }
 
     public function testCreateMappedAssetWithPredigested()
@@ -164,7 +175,7 @@ class MappedAssetFactoryTest extends TestCase
         $this->assertTrue($asset->isVendor);
     }
 
-    private function createFactory(?AssetCompilerInterface $extraCompiler = null, ?string $hashAlgorithm = null): MappedAssetFactory
+    private function createFactory(?AssetCompilerInterface $extraCompiler = null): MappedAssetFactory
     {
         $compilers = [
             new JavaScriptImportPathCompiler($this->createMock(ImportMapConfigReader::class)),
@@ -186,20 +197,11 @@ class MappedAssetFactoryTest extends TestCase
                 return '/final-assets/'.$logicalPath;
             });
 
-        if (null !== $hashAlgorithm) {
-            $factory = new MappedAssetFactory(
-                $pathResolver,
-                $compiler,
-                __DIR__.'/../Fixtures/assets/vendor',
-                $hashAlgorithm,
-            );
-        } else {
-            $factory = new MappedAssetFactory(
-                $pathResolver,
-                $compiler,
-                __DIR__.'/../Fixtures/assets/vendor',
-            );
-        }
+        $factory = new MappedAssetFactory(
+            $pathResolver,
+            $compiler,
+            __DIR__.'/../Fixtures/assets/vendor',
+        );
 
         // mock the AssetMapper to behave like normal: by calling back to the factory
         $this->assetMapper = $this->createMock(AssetMapperInterface::class);
