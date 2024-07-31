@@ -9,6 +9,7 @@ CHANGELOG
  * Make the `config/` directory optional in `MicroKernelTrait`, add support for service arguments in the
    invokable Kernel class, and register `FrameworkBundle` by default when the `bundles.php` file is missing
  * [BC BREAK] The `secrets:decrypt-to-local` command terminates with a non-zero exit code when a secret could not be read
+ * Deprecate `session.sid_length` and `session.sid_bits_per_character` config options
 
 7.1
 ---

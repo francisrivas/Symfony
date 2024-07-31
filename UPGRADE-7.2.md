@@ -22,6 +22,7 @@ FrameworkBundle
 ---------------
 
  * [BC BREAK] The `secrets:decrypt-to-local` command terminates with a non-zero exit code when a secret could not be read
+ * Deprecate `session.sid_length` and `session.sid_bits_per_character` config options
 
 Security
 --------
