@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+7.2
+---
+
+ * Add `InputInterface::getRawArguments()`
+ * Add `InputInterface::getRawOptions()`
+ * Add `Input::unparse()`
+
+
 7.1
 ---
 
