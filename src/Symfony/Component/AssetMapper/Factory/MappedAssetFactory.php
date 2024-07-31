@@ -35,7 +35,7 @@ class MappedAssetFactory implements MappedAssetFactoryInterface
         private readonly string $vendorDir,
         private readonly string $hashAlgorithm = 'xxh128',
     ) {
-        if (!\in_array($this->hashAlgorithm, hash_algos(), true)) {
+        if (!\in_array($hashAlgorithm, hash_algos(), true)) {
             throw new InvalidArgumentException(\sprintf('The hash algorithm "%s" is not supported.', $this->hashAlgorithm));
         }
     }
