@@ -123,21 +123,24 @@ class MappedAssetFactoryTest extends TestCase
     }
 
     /**
-     * @dataProvider provideHashAlgorithms
+     * @dataProvider provideHashAlgorithmsDigests
      */
-    public function testCreateMappedAssetHashAlgorithms(?string $hashAlgorithm)
+    public function testCreateMappedAssetHashAlgorithms(?string $hashAlgorithm, string $logicalPath, string $sourcePath, string $expectedDigest)
     {
         $factory = $this->createFactory(null, $hashAlgorithm);
-        $asset = $factory->createMappedAsset('subdir/file6.js', __DIR__.'/../Fixtures/dir2/subdir/file6.js');
-        $this->assertSame(hash_file($hashAlgorithm ?? 'xxh128', __DIR__.'/../Fixtures/dir2/subdir/file6.js'), $asset->digest);
+        $asset = $factory->createMappedAsset($logicalPath, $sourcePath);
+        $this->assertSame($expectedDigest, $asset->digest);
     }
 
-    public static function provideHashAlgorithms()
+    public static function provideHashAlgorithmsDigests()
     {
-        yield 'none' => [null];
-        yield 'xxh128' => ['xxh128'];
-        yield 'xxh3' => ['xxh3'];
-        yield 'crc32c' => ['crc32c'];
+        $logicalPath = 'subdir/file6.js';
+        $sourcePath = __DIR__.'/../Fixtures/dir2/subdir/file6.js';
+
+        yield 'none' => [null, $logicalPath, $sourcePath, '7f983f4053a57f07551fed6099c0da4e'];
+        yield 'xxh128' => ['xxh128', $logicalPath, $sourcePath, '7f983f4053a57f07551fed6099c0da4e'];
+        yield 'xxh3' => ['xxh3', $logicalPath, $sourcePath, '6ba256c3aa14bcc2'];
+        yield 'crc32c' => ['crc32c', $logicalPath, $sourcePath, 'e2798e70'];
     }
 
     public function testHashAlgorithmMustBeValid()
