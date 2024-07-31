@@ -9,6 +9,7 @@ CHANGELOG
  * Make the `config/` directory optional in `MicroKernelTrait`, add support for service arguments in the
    invokable Kernel class, and register `FrameworkBundle` by default when the `bundles.php` file is missing
  * [BC BREAK] The `secrets:decrypt-to-local` command terminates with a non-zero exit code when a secret could not be read
+ * Enable `json_decode_detailed_errors` in the default serializer context in debug mode by default when `seld/jsonlint` is installed
 
 7.1
 ---
