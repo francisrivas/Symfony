@@ -5,6 +5,7 @@ CHANGELOG
 ---
 
  * Allow configuring the secret used to sign login links
+ * Add `security.firewalls.not_full_fledged_handler` option to configure behavior where user is not full fledged
 
 7.1
 ---
