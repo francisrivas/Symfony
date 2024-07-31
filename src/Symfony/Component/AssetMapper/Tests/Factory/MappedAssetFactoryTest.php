@@ -19,6 +19,7 @@ use Symfony\Component\AssetMapper\Compiler\AssetCompilerInterface;
 use Symfony\Component\AssetMapper\Compiler\CssAssetUrlCompiler;
 use Symfony\Component\AssetMapper\Compiler\JavaScriptImportPathCompiler;
 use Symfony\Component\AssetMapper\Exception\CircularAssetsException;
+use Symfony\Component\AssetMapper\Exception\InvalidArgumentException;
 use Symfony\Component\AssetMapper\Factory\MappedAssetFactory;
 use Symfony\Component\AssetMapper\ImportMap\ImportMapConfigReader;
 use Symfony\Component\AssetMapper\MappedAsset;
@@ -119,6 +120,43 @@ class MappedAssetFactoryTest extends TestCase
         $factory = $this->createFactory($file6Compiler);
         $asset = $factory->createMappedAsset('subdir/file6.js', __DIR__.'/../Fixtures/dir2/subdir/file6.js');
         $this->assertSame('7e4f24ebddd4ab2a3bcf0d89270b9f30', $asset->digest);
+    }
+
+    /**
+     * @dataProvider provideCreateMappedAssetHashAlgorithms
+     */
+    public function testCreateMappedAssetHashAlgorithms(?string $hashAlgorithm, string $expectedDigest)
+    {
+        $pathResolver = $this->createMock(PublicAssetsPathResolverInterface::class);
+        $compiler = $this->createMock(AssetMapperCompiler::class);
+
+        if (null === $hashAlgorithm) {
+            $factory = new MappedAssetFactory($pathResolver, $compiler, 'vendorDir');
+        } else {
+            $factory = new MappedAssetFactory($pathResolver, $compiler, 'vendorDir', $hashAlgorithm);
+        }
+
+        $asset = $factory->createMappedAsset('subdir/file6.js', __DIR__.'/../Fixtures/dir2/subdir/file6.js');
+        $this->assertSame($expectedDigest, $asset->digest);
+    }
+
+    public static function provideCreateMappedAssetHashAlgorithms()
+    {
+        yield 'none' => [null, '7f983f4053a57f07551fed6099c0da4e'];
+        yield 'xxh128' => ['xxh128', '7f983f4053a57f07551fed6099c0da4e'];
+        yield 'xxh3' => ['xxh3', '6ba256c3aa14bcc2'];
+        yield 'crc32c' => ['crc32c', 'e2798e70'];
+    }
+
+    public function testHashAlgorithmMustBeValid()
+    {
+        $compiler = $this->createMock(AssetMapperCompiler::class);
+        $pathResolver = $this->createMock(PublicAssetsPathResolverInterface::class);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The hash algorithm "not_a_valid_algo" is not supported.');
+
+        new MappedAssetFactory($pathResolver, $compiler, 'vendorDir', 'not_a_valid_algo');
     }
 
     public function testCreateMappedAssetWithPredigested()

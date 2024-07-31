@@ -13,6 +13,7 @@ namespace Symfony\Component\AssetMapper\Factory;
 
 use Symfony\Component\AssetMapper\AssetMapperCompiler;
 use Symfony\Component\AssetMapper\Exception\CircularAssetsException;
+use Symfony\Component\AssetMapper\Exception\InvalidArgumentException;
 use Symfony\Component\AssetMapper\Exception\RuntimeException;
 use Symfony\Component\AssetMapper\MappedAsset;
 use Symfony\Component\AssetMapper\Path\PublicAssetsPathResolverInterface;
@@ -32,7 +33,11 @@ class MappedAssetFactory implements MappedAssetFactoryInterface
         private readonly PublicAssetsPathResolverInterface $assetsPathResolver,
         private readonly AssetMapperCompiler $compiler,
         private readonly string $vendorDir,
+        private readonly string $hashAlgorithm = 'xxh128',
     ) {
+        if (!\in_array($hashAlgorithm, hash_algos(), true)) {
+            throw new InvalidArgumentException(\sprintf('The hash algorithm "%s" is not supported.', $hashAlgorithm));
+        }
     }
 
     public function createMappedAsset(string $logicalPath, string $sourcePath): ?MappedAsset
@@ -86,11 +91,11 @@ class MappedAssetFactory implements MappedAssetFactoryInterface
 
         // Use the compiled content if any
         if (null !== $content) {
-            return [hash('xxh128', $content), false];
+            return [hash($this->hashAlgorithm, $content), false];
         }
 
         return [
-            hash_file('xxh128', $asset->sourcePath),
+            hash_file($this->hashAlgorithm, $asset->sourcePath),
             false,
         ];
     }
