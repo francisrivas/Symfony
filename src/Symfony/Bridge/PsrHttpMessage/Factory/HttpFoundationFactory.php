@@ -190,8 +190,6 @@ class HttpFoundationFactory implements HttpFoundationFactoryInterface
 
             if ('samesite' === strtolower($name) && null !== $value) {
                 $samesite = $value;
-
-                continue;
             }
         }
 
